@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JDAV Leistungsgruppe – Trainer-Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f5f5f2;color:#1a1a18;font-size:14px;line-height:1.5;transition:font-size .15s}
+body.fs-lg{font-size:18px}
+body.fs-sm{font-size:12px}
+.wrap{max-width:960px;margin:0 auto;padding:1.5rem 1rem}
+
+.header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:1.25rem}
+.header-left h1{font-size:1.4em;font-weight:500;margin-bottom:2px}
+.header-left .sub{font-size:.85em;color:#888}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:26px}
+
+.fs-tog{display:flex;background:#e8e8e4;border-radius:24px;padding:3px;gap:2px}
+.fsbtn{font-size:14px;padding:7px 14px;border:none;border-radius:22px;background:transparent;color:#777;cursor:pointer;transition:all .15s;line-height:1}
+.fsbtn.on{background:#fff;color:#1a1a18;font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.print-btn{font-size:12px;padding:5px 12px;border:1px solid #ddd;border-radius:20px;background:#fff;cursor:pointer;color:#555}
+.print-btn:hover{background:#f0efea}
+
+.tabs{display:flex;gap:2px;border-bottom:1.5px solid #ddd;margin-bottom:1.25rem}
+.tab{font-size:.93em;padding:7px 16px;cursor:pointer;border:none;background:none;color:#777;border-bottom:2.5px solid transparent;margin-bottom:-1.5px}
+.tab.on{color:#1a1a18;font-weight:500;border-bottom:2.5px solid #1a1a18}
+.panel{display:none}.panel.on{display:block}
+
+.plan-meta{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:1rem}
+.leg{display:flex;flex-wrap:wrap;gap:10px;font-size:.85em;color:#666}
+.leg span{display:flex;align-items:center;gap:5px}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.vtog{display:flex;background:#e8e8e4;border-radius:20px;padding:2px;gap:1px}
+.vtbtn{font-size:.85em;padding:4px 12px;border:none;border-radius:18px;background:transparent;color:#777;cursor:pointer;transition:all .15s}
+.vtbtn.on{background:#fff;color:#1a1a18;font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+
+.month{margin-bottom:1.25rem}
+.mh{font-size:.82em;font-weight:500;color:#888;margin-bottom:7px;text-transform:uppercase;letter-spacing:.04em}
+.row{display:flex;align-items:center;gap:10px;padding:7px 10px;border:1px solid #e8e8e4;border-radius:9px;margin-bottom:4px;background:#fff;flex-wrap:wrap}
+.row.clickable{cursor:pointer;transition:all .15s}
+.row.clickable:hover{border-color:#cfcfc8;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.row.past{opacity:.55;border-color:#ededea}
+.row.past .loc{color:#999}
+.row.next-up{border-color:#185FA5;border-width:1.5px}
+.date{min-width:72px;color:#888;font-size:.85em}
+.loc{min-width:90px;font-weight:500;font-size:.85em}
+.pills{display:flex;flex-wrap:wrap;gap:4px;flex:1}
+.p{font-size:.78em;padding:2px 8px;border-radius:12px;font-weight:500}
+.p-rot{background:#FCEBEB;color:#A32D2D}
+.p-gelb{background:#FFF3DC;color:#7a4e00}
+.p-grün{background:#EBF8E1;color:#2e6b09}
+.p-lila{background:#EEEDFE;color:#3C3489}
+.wk{background:#E6F1FB;color:#185FA5;padding:2px 9px;border-radius:12px;font-size:.78em;font-weight:500;border:1px solid #B5D4F4;white-space:nowrap}
+.xt{font-size:.78em;color:#999;padding:1px 0}
+.heute-div{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:.82em;font-weight:500;color:#185FA5}
+.heute-div::before,.heute-div::after{content:'';flex:1;height:1px;background:#c8dff5}
+.show-hint{font-size:.85em;color:#888;text-align:center;padding:8px 0 4px;cursor:pointer}
+.show-hint:hover{color:#1a1a18}
+
+.filter-section{margin-bottom:1.25rem}
+.search-wrap{position:relative;margin-bottom:10px}
+.search-wrap input{width:100%;padding:7px 12px 7px 34px;border:1px solid #ddd;border-radius:20px;font-size:.93em;background:#fff;outline:none;font-family:inherit}
+.search-wrap input:focus{border-color:#aaa}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#aaa;font-size:14px;pointer-events:none}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.filter-bar .fl,.filter-row .fl{font-size:.85em;color:#888}
+.fbtn{font-size:.85em;padding:4px 12px;border-radius:20px;border:1px solid #ddd;background:#fff;cursor:pointer;color:#555;transition:all .15s}
+.fbtn.on{border-color:transparent;color:#fff}
+.fbtn-alle.on,.fbtn-ort-alle.on,.fbtn-kh.on,.fbtn-bh.on{background:#444}
+.fbtn-rot.on{background:#E24B4A}
+.fbtn-gelb.on{background:#BA7517}
+.fbtn-grün.on{background:#639922}
+.fbtn-lila.on{background:#7F77DD}
+.fbtn-fokus-fluessig.on,.fbtn-fokus-dynamik.on{background:#185FA5}
+.row.clickable{cursor:pointer}
+.row.clickable:hover{border-color:#b5d4f4;background:#fafcff}
+.fbtn-fokus-alle.on{background:#444}
+.fbtn-wu-ort-alle.on,.fbtn-wu-kh.on,.fbtn-wu-bh.on,.fbtn-wu-egal.on,.fbtn-wu-dauer-alle.on,.fbtn-wu-15.on,.fbtn-wu-15-30.on,.fbtn-stretch-art-alle.on,.fbtn-stretch-gruppe.on,.fbtn-stretch-routine.on,.fbtn-stretch-video.on{background:#444}
+.filter-sep{width:1px;height:20px;background:#ddd;align-self:center;flex-shrink:0}
+
+.eu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.eu-card{background:#fff;border:1px solid #e8e8e4;border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.eu-card.hidden,.simple-card.hidden{display:none}
+.eu-head{padding:12px 14px 10px;border-bottom:1px solid #f0efea}
+.eu-head-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px}
+.eu-title{font-size:1em;font-weight:500;flex:1}
+.copy-btn{font-size:.75em;padding:3px 9px;border:1px solid #ddd;border-radius:12px;background:#fff;cursor:pointer;color:#666;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.copy-btn:hover{background:#f0efea}
+.copy-btn.done{border-color:#639922;color:#2e6b09;background:#EBF8E1}
+.eu-meta{display:flex;flex-wrap:wrap;gap:5px}
+.eu-body{padding:12px 14px;flex:1;font-size:.9em;color:#444;line-height:1.65}
+.eu-foot{padding:0 14px 12px}
+.eu-foot-lbl{font-size:.72em;font-weight:500;color:#aaa;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.eu-foot-txt{font-size:.82em;color:#666;line-height:1.5}
+
+.badge{font-size:.78em;padding:2px 8px;border-radius:10px;font-weight:500;white-space:nowrap}
+.b-rot{background:#FCEBEB;color:#A32D2D}
+.b-gelb{background:#FFF3DC;color:#7a4e00}
+.b-grün{background:#EBF8E1;color:#2e6b09}
+.b-lila{background:#EEEDFE;color:#3C3489}
+.b-ort{background:#f0efea;color:#555}
+.b-sw{background:#E6F1FB;color:#185FA5}
+.b-dur{background:#f0efea;color:#666}
+
+
+.wu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.info-box{background:#fff;border:1px solid #e8e8e4;border-radius:12px;padding:12px 14px;color:#555;line-height:1.6;margin-bottom:12px}
+.simple-card{background:#fff;border:1px solid #e8e8e4;border-radius:12px;overflow:hidden}
+.simple-head{padding:12px 14px 10px;border-bottom:1px solid #f0efea}
+.simple-title{font-size:1em;font-weight:500}
+.simple-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.simple-body{padding:12px 14px;font-size:.9em;color:#444;line-height:1.65}
+.link-list a{color:#185FA5;text-decoration:none}
+.link-list a:hover{text-decoration:underline}
+
+@media print {
+  body{background:#fff;font-size:11px}
+  .header-right,.tabs,.vtog,.show-hint,.heute-div,.print-btn,.fs-tog{display:none!important}
+  #p-eu{display:none!important}
+  #p-plan{display:block!important}
+  .wrap{padding:0;max-width:100%}
+  .row.past{display:none!important}
+  .row{border:1px solid #ccc;break-inside:avoid;margin-bottom:3px}
+  .month{break-inside:avoid;margin-bottom:10px}
+  .mh{font-size:10px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="header">
+  <div class="header-left">
+    <h1>JDAV Leistungsgruppe</h1>
+    <p class="sub">Trainingsplan Jan – Jun 2026</p>
+    <p class="sub" style="margin-top:4px">Plan: Jana · Dashboard: Lukas · Version 1.3</p>
+  </div>
+  <div class="header-right">
+    <div class="fs-tog">
+      <button class="fsbtn" id="fs-sm" onclick="setFont('sm')">A−</button>
+      <button class="fsbtn on" id="fs-md" onclick="setFont('md')">A</button>
+      <button class="fsbtn" id="fs-lg" onclick="setFont('lg')">A+</button>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab on" onclick="sw('plan',this)">Trainingsplan</button>
+  <button class="tab" onclick="sw('wu',this)">Aufwärmen</button>
+  <button class="tab" onclick="sw('eu',this)">Einheiten (22)</button>
+  <button class="tab" onclick="sw('dehnen',this)">Dehnen</button>
+</div>
+
+<div class="panel on" id="p-plan">
+  <div class="plan-meta">
+    <div class="leg">
+      <span><span class="dot" style="background:#E24B4A"></span>Rot – Maximalkraft / Schnellkraft</span>
+      <span><span class="dot" style="background:#BA7517"></span>Gelb – Kraftausdauer anaerob</span>
+      <span><span class="dot" style="background:#639922"></span>Grün – Kraftausdauer aerob</span>
+      <span><span class="dot" style="background:#7F77DD"></span>Lila – Techniktraining</span>
+      <span><span class="dot" style="background:#185FA5;border-radius:2px"></span>Wettkampf</span>
+    </div>
+    <div class="vtog">
+      <button class="vtbtn on" id="vt-aktuell" onclick="setPlanView('aktuell',this)">Aktuell</button>
+      <button class="vtbtn" id="vt-alle" onclick="setPlanView('alle',this)">Alle</button>
+    </div>
+  </div>
+  <div id="planContent"></div>
+</div>
+
+
+<div class="panel" id="p-wu">
+  <div class="info-box">
+    <strong>Aufwärmen</strong><br>
+    Reguläres Aufwärmen sollte ca. 15 Minuten in Anspruch nehmen. Wenn nicht anders angegeben, sollten die folgenden Vorschläge nicht mehr als 15 Minuten kosten.<br>
+    Bei allem Warmmachen an der Wand können Technikimpulse wie leise treten oder nicht nachgreifen integriert werden.
+  </div>
+  <div class="filter-section">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="wuSearch" placeholder="Aufwärmen suchen …" oninput="applyWarmupFilters()">
+    </div>
+    <div class="filter-bar">
+      <span class="fl">Ort:</span>
+      <button class="fbtn fbtn-wu-ort-alle on" onclick="filterWarmupOrt('alle',this)">Alle</button>
+      <button class="fbtn fbtn-wu-kh" onclick="filterWarmupOrt('Kletterhalle',this)">Kletterhalle</button>
+      <button class="fbtn fbtn-wu-bh" onclick="filterWarmupOrt('Boulderhalle',this)">Boulderhalle</button>
+      <button class="fbtn fbtn-wu-egal" onclick="filterWarmupOrt('egal',this)">Ortsunabhängig</button>
+      <span class="filter-sep"></span>
+      <span class="fl">Dauer:</span>
+      <button class="fbtn fbtn-wu-dauer-alle on" onclick="filterWarmupDuration('alle',this)">Alle</button>
+      <button class="fbtn fbtn-wu-15" onclick="filterWarmupDuration('15 min',this)">15 min</button>
+      <button class="fbtn fbtn-wu-15-30" onclick="filterWarmupDuration('15 - 30 min',this)">15–30 min</button>
+    </div>
+  </div>
+  <div class="wu-grid" id="wuGrid"></div>
+</div>
+
+<div class="panel" id="p-eu">
+  <div class="filter-section">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="euSearch" placeholder="Einheit suchen …" oninput="applyFilters()">
+    </div>
+    <div class="filter-bar">
+      <span class="fl">Intensität:</span>
+      <button class="fbtn fbtn-alle on" onclick="filterColor('alle',this)">Alle</button>
+      <button class="fbtn fbtn-rot"  onclick="filterColor('rot',this)">Rot (4)</button>
+      <button class="fbtn fbtn-gelb" onclick="filterColor('gelb',this)">Gelb (12)</button>
+      <button class="fbtn fbtn-grün" onclick="filterColor('grün',this)">Grün (5)</button>
+      <button class="fbtn fbtn-lila" onclick="filterColor('lila',this)">Lila (1)</button>
+      <span class="filter-sep"></span>
+      <span class="fl">Ort:</span>
+      <button class="fbtn fbtn-ort-alle on" onclick="filterOrt('alle',this)">Beide</button>
+      <button class="fbtn fbtn-kh" onclick="filterOrt('KH',this)">Kletterhalle</button>
+      <button class="fbtn fbtn-bh" onclick="filterOrt('BH',this)">Boulderhalle</button>
+    </div>
+    <div class="filter-row">
+      <span class="fl">Schwerpunkt:</span>
+      <button class="fbtn fbtn-fokus-alle on" onclick="filterFocus('alle',this)">Alle</button>
+      <button class="fbtn fbtn-fokus-fluessig" onclick="filterFocus('fluessiger-klettern',this)">Flüssiger klettern</button>
+      <button class="fbtn fbtn-fokus-dynamik" onclick="filterFocus('dynamische-bewegungen',this)">Dynamische Bewegungen</button>
+    </div>
+  </div>
+  <div class="eu-grid" id="euGrid"></div>
+</div>
+
+<div class="panel" id="p-dehnen">
+  <div class="info-box">
+    <strong>Dehnen</strong><br>
+    Im Idealfall sollte nach jedem Training mindestens 15 Minuten gedehnt werden oder auf andere Weise an Flexibilität und Mobilität gearbeitet werden.
+  </div>
+  <div class="filter-section">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="stretchSearch" placeholder="Dehnen suchen …" oninput="applyStretchFilters()">
+    </div>
+    <div class="filter-bar">
+      <span class="fl">Art:</span>
+      <button class="fbtn fbtn-stretch-art-alle on" onclick="filterStretchType('alle',this)">Alle</button>
+      <button class="fbtn fbtn-stretch-gruppe" onclick="filterStretchType('gruppe',this)">Gruppe</button>
+      <button class="fbtn fbtn-stretch-routine" onclick="filterStretchType('routine',this)">Routine</button>
+      <button class="fbtn fbtn-stretch-video" onclick="filterStretchType('video',this)">Mit Link</button>
+    </div>
+  </div>
+  <div class="wu-grid" id="stretchGrid"></div>
+</div>
+
+<script>
+function setFont(sz) {
+  document.body.classList.remove('fs-sm','fs-lg');
+  if (sz !== 'md') document.body.classList.add('fs-' + sz);
+  ['sm','md','lg'].forEach(s => document.getElementById('fs-'+s).classList.toggle('on', s === sz));
+}
+
+function parseDate(dstr) {
+  return new Date(2026, parseInt(dstr.slice(3,5))-1, parseInt(dstr.slice(0,2)));
+}
+
+
+const WARMUPS = [
+  {o:'Kletterhalle', t:'15 min', d:'5 Minuten aufwärmen in der Gruppe am Boden + eine Route 2/3 Grade unter Flashniveau'},
+  {o:'Kletterhalle', t:'15 min', d:'Eine Route 4/3 Grade unter Rotpunktniveau + eine Route 2/3 Grade unter Flashniveau'},
+  {o:'egal', t:'15 min', d:'15 Minuten aufwärmen in der Gruppe am Boden'},
+  {o:'Boulderhalle', t:'15 min', d:'2 Boulder 3 Farben unter Flashniveau + 2 Boulder 2 Farben unter Flashniveau + 2 Boulder 1 Farbe unter Flashniveau'},
+  {o:'Boulderhalle', t:'15 min', d:'5 Minuten aufwärmen in der Gruppe am Boden + 2 Boulder 2 Farben unter Flashniveau + 2 Boulder 1 Farbe unter Flashniveau'},
+  {o:'egal', t:'15 - 30 min', d:'Wettkampfaufwärmen'}
+];
+
+const STRETCHES = [
+  {idea:'Ein Kind aus der Gruppe leitet das Dehnen'},
+  {idea:'Jedes Kind darf eine Dehnübung vormachen, jede Dehnübung wird beidseitig für 30–40 Sekunden gehalten'},
+  {idea:'Shauna Coxey Mobilitäts Routine ist sehr gut und dauert ca. 15 Minuten', link:'https://www.youtube.com/watch?v=2Ycydyru72M'},
+  {idea:'Yoga (für eine beispielhafte Routine siehe Link)', link:'https://www.youtube.com/watch?v=_x2rJEQ_ntc'}
+];
+
+const S = [
+  {d:'31.01. Sa',l:'BH',e:['grün'],w:null},
+  {d:'05.02. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
+  {d:'07.02. Sa',l:'BH',e:['gelb'],w:null},
+  {d:'12.02. Do',l:'KH',e:['grün'],w:null},
+  {d:'14.02. Sa',l:'BH',e:['gelb'],w:null,x:'Wettkampf-Aufwärmroutine erarbeiten'},
+  {d:'19.02. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
+  {d:'21.02. Sa',l:'BH',e:['grün'],w:null},
+  {d:'26.02. Do',l:'KH',e:['gelb','rot'],w:null,x:'Wettkampfaufwärmen · Projektieren / Onsight'},
+  {d:'28.02. Sa',l:'BH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
+  {d:'05.03. Do',l:'KH',e:['grün'],w:null},
+  {d:'07.03. Sa',l:'BH',e:['rot'],w:null},
+  {d:'12.03. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
+  {d:'14.03. Sa',l:'BH',e:['gelb'],w:null},
+  {d:'02.04. Do',l:'KH',e:['rot'],w:null,x:'Schwerpunkt dynamisch Klettern'},
+  {d:'04.04. Sa',l:'BH',e:['rot','gelb'],w:null,x:'Wettkampfaufwärmen · Flash the Set / Boulder Shoot Out'},
+  {d:'09.04. Do',l:'KH',e:['grün','lila'],w:null},
+  {d:'11.04. Sa',l:'BH',e:['gelb'],w:'LM Bouldern'},
+  {d:'16.04. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
+  {d:'18.04. Sa',l:'BH',e:['rot'],w:'Kidscup'},
+  {d:'23.04. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
+  {d:'25.04. Sa',l:'BH',e:['gelb'],w:null},
+  {d:'30.04. Do',l:'KH',e:['grün'],w:null},
+  {d:'02.05. Sa',l:'BH',e:['rot'],w:null},
+  {d:'07.05. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
+  {d:'09.05. Sa',l:'BH',e:['gelb'],w:null},
+  {d:'14.05. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
+  {d:'16.05. Sa',l:'BH',e:['rot'],w:null},
+  {d:'21.05. Do',l:'KH',e:['grün'],w:null},
+  {d:'23.05. Sa',l:'BH',e:['gelb'],w:null,x:'Schwerpunkt flüssiger Klettern'},
+  {d:'28.05. Do',l:'KH',e:['grün','lila'],w:null,x:'Wettkampfaufwärmen'},
+  {d:'30.05. Sa',l:'BH',e:['gelb'],w:'LM Lead'},
+  {d:'04.06. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
+  {d:'06.06. Sa',l:'BH',e:['rot'],w:null},
+  {d:'11.06. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
+  {d:'13.06. Sa',l:'BH',e:['gelb'],w:'LM Speed / Kidscup'},
+  {d:'18.06. Do',l:'KH',e:['grün'],w:null},
+  {d:'20.06. Sa',l:'BH',e:['rot'],w:null},
+  {d:'25.06. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
+  {d:'27.06. Sa',l:'BH',e:['grün'],w:null},
+];
+
+const MONTHS = [['Januar','01'],['Februar','02'],['März','03'],['April','04'],['Mai','05'],['Juni','06']];
+const CL = {rot:'Rot',gelb:'Gelb','grün':'Grün',lila:'Lila'};
+
+const today = new Date(); today.setHours(0,0,0,0);
+S.forEach(s => { s.date = parseDate(s.d); s.isPast = s.date < today; });
+const pastSessions = S.filter(s => s.isPast);
+const last3 = new Set(pastSessions.slice(-3).map(s => s.d));
+const nextUpDate = S.find(s => !s.isPast);
+
+function buildPlan() {
+  let html = '';
+  MONTHS.forEach(([name, mnum]) => {
+    const ms = S.filter(s => s.d.slice(3,5) === mnum);
+    if (!ms.length) return;
+    html += `<div class="month" data-m="${mnum}"><div class="mh">${name} 2026</div>`;
+    ms.forEach(s => {
+      if (nextUpDate && s.d === nextUpDate.d && pastSessions.length > 0)
+        html += `<div class="heute-div">Heute – ${today.toLocaleDateString('de-DE',{day:'2-digit',month:'long'})}</div>`;
+      const cls = ['row','clickable', s.isPast?'past':'', (!s.isPast&&nextUpDate&&s.d===nextUpDate.d)?'next-up':''].filter(Boolean).join(' ');
+      const vis = !s.isPast || last3.has(s.d);
+      const payload = encodeURIComponent(JSON.stringify({e:s.e,l:s.l,x:s.x||'',w:s.w||''}));
+      html += `<div class="${cls}" data-plan="${payload}" data-past="${s.isPast?1:0}" data-in3="${last3.has(s.d)?1:0}" ${!vis?'style="display:none"':''} onclick="openSessionUnit(this.dataset.plan)">`;
+      html += `<span class="date">${s.d}</span><span class="loc">${s.l==='KH'?'Kletterhalle':'Boulderhalle'}</span>`;
+      html += `<div class="pills">`;
+      if (!s.w) html += s.e.map(e=>`<span class="p p-${e}">${CL[e]}</span>`).join('');
+      if (s.x) html += `<span class="xt">${s.x}</span>`;
+      html += `</div>`;
+      if (s.w) html += `<span class="wk">${s.w}</span>`;
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
+  const hidden = pastSessions.length - Math.min(3, pastSessions.length);
+  if (hidden > 0)
+    html = `<div class="show-hint" id="showAllHint" onclick="setPlanView('alle',document.getElementById('vt-alle'))">+ ${hidden} ältere Einheiten anzeigen</div>` + html;
+  document.getElementById('planContent').innerHTML = html;
+}
+
+function setPlanView(v, btn) {
+  document.querySelectorAll('.vtbtn').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  document.querySelectorAll('.row[data-past="1"]').forEach(r => {
+    r.style.display = v === 'alle' ? '' : (r.dataset.in3 === '1' ? '' : 'none');
+  });
+  document.querySelectorAll('.month').forEach(m => {
+    m.style.display = [...m.querySelectorAll('.row')].some(r => r.style.display !== 'none') ? '' : 'none';
+  });
+  const hint = document.getElementById('showAllHint');
+  if (hint) hint.style.display = v === 'alle' ? 'none' : '';
+}
+
+buildPlan();
+setPlanView('aktuell', document.getElementById('vt-aktuell'));
+
+const EU = [{n:'Pyramiden Training',o:'Kletterhalle',f:'gelb',k:'',s:'',d:'45+ min',
+   desc:'Startend bei 2/3 Grad unter Rotpunktniveau wird die Schwierigkeit immer weiter erhöht. Bei Sturz sofort ablassen; eine Schwierigkeit so lange wiederholen bis sie geschafft ist. Ziel: möglichst hohe Schwierigkeit erreichen. Aufwärmen kann integriert werden.',
+   x:'Chalkbeutel bleibt unten'},
+  {n:'Leichte Routen spulen',o:'Kletterhalle',f:'grün',k:'',s:'',d:'60+ min',
+   desc:'Jedes Kind klettert 2 Routen (2/3 Grad unter Onsightniveau) dreimal – insgesamt 6-mal. Beim Wechsel max. 1 Minute Pause. Im Vorstieg möglich; ggf. erstes Mal vorsteigen, dann zweimal nachsteigen ohne umzubinden.',
+   x:'Chalkbeutel bleibt unten · möglichst schnell klettern'},
+  {n:'Alle Routen an einem Seil',o:'Kletterhalle',f:'grün,gelb',k:'',s:'',d:'30+ min',
+   desc:'Alle Routen an einem Seil klettern (mind. 3 Routen). Bei Sturz direkt ablassen, keine Pause zwischen den Routen. Kinder überlegen selbst die beste Reihenfolge – taktischer Aspekt.',
+   x:''},
+  {n:'Boulderhalle traversieren',o:'Boulderhalle',f:'grün',k:'',s:'',d:'20+ min',
+   desc:'Nur bei relativ leerer Halle! Möglichst langen Abschnitt traversieren (z. B. um die Mittelinsel) ohne Bodenkontakt. Bei anderen Kletterern in der Wand warten. Kinder auf verschiedene Stellen aufteilen.',
+   x:'Füße leise setzen · Hände/Füße nur einmal setzen (Position nicht verbessern)'},
+  {n:'Tschechentraining',o:'Kletterhalle',f:'gelb',k:'',s:'',d:'',
+   desc:'Route auf Onsightniveau einmal klettern, dann schnell ablassen und sofort wieder einsteigen. So lange wiederholen bis das Kind stürzt. Route durchgehend ähnlich schwer. Mind. 3 Routen pro Person. Nur im Vorstieg.',
+   x:''},
+  {n:'4×4',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'',
+   desc:'4 definierte Boulder ohne Pause nacheinander klettern. Nach jedem Top direkt zum nächsten. Danach 2,5–4 min Pause (unvollständige Erholung). 4-mal wiederholen = 16 Boulder gesamt. Boulder schwierig, aber 4 hintereinander gerade noch machbar.',
+   x:''},
+  {n:'Projekte finden / ausbouldern',o:'Kletterhalle',f:'rot',k:'',s:'',d:'',
+   desc:'Kinder finden neue Projekte: Routen über dem aktuellen Rotpunktlevel, aber realistisch. Diese ausbouldern, so dass möglichst jeder Zug einmal geschafft wird. Pausen erlaubt. Falls Route zu schwer/leicht – Auswahl ändern.',
+   x:''},
+  {n:'Projektieren',o:'Kletterhalle',f:'gelb,rot',k:'',s:'',d:'',
+   desc:'Gute Versuche in Projekten machen (bereits ausgebouldert oder knapp über Flashniveau). Beim ersten Sturz ablassen – kein Ausbouldern, Fokus auf Versuchen. Mehrere Versuche mit genug Pause. Kinder über Fehler sprechen lassen.',
+   x:''},
+  {n:'Onsight Training',o:'Kletterhalle',f:'gelb',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'',
+   desc:'Neue Routen (Onsight- bis Rotpunktgrad) werden geonsightet. Kinder setzen sich vor dem Einstieg mit der Route auseinander: in Paaren Schlüsselstellen, Pausenstellen und Clipp-Positionen identifizieren, Beta überlegen. Nach dem Onsight besprechen.',
+   x:''},
+  {n:'Freies Klettern / Bouldern mit Technikaufgabe',o:'Kletterhalle / Boulderhalle',f:'lila',k:'',s:'',d:'',
+   desc:'Freies Klettern/Bouldern mit Zusatzaufgabe. Routen/Boulder nicht zu schwer – Fokus auf der Aufgabe. Aufgaben regelmäßig wechseln; kann auch ins verlängerte Aufwärmen integriert werden. Beispiele: Füße leise setzen, nicht nachgreifen/-treten, Fußwechsel, 3 sek innehalten vor jedem Griff, nur eingedreht klettern.',
+   x:''},
+  {n:'Flash the Set',o:'Boulderhalle',f:'gelb',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'',
+   desc:'Neues Boulderset wie Wettkampf behandeln – pro Boulder nur ein Versuch. Ziel: möglichst viele Boulder flashen. Gruppenarbeit ausdrücklich erlaubt: Kinder wechseln sich ab und lernen voneinander. Auf ausreichend Pause achten.',
+   x:''},
+  {n:'Schnell Klettern',o:'Kletterhalle',f:'gelb',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'',
+   desc:'Schwierige Routen (Onsightniveau oder knapp darunter) so schnell wie möglich klettern. Bei Sturz direkt wieder an die Wand. Optional: Kinder stoppen sich gegenseitig (nur bei gleich starken Paaren sinnvoll).',
+   x:''},
+  {n:'Schnell Bouldern',o:'Boulderhalle',f:'gelb',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'',
+   desc:'5 vorher bestimmte Boulder (ca. Flashniveau) so schnell wie möglich klettern. Optional gegenseitiges Stoppen – nur bei ähnlich starken Paaren sinnvoll.',
+   x:''},
+  {n:'Dauerklettern',o:'Boulderhalle',f:'grün',k:'',s:'',d:'',
+   desc:'Kinder bouldern 5–10 Minuten am Stück ohne Bodenkontakt. Immer in Bewegung bleiben – Pausenpositionen sind verboten. Nicht an einer Platte durchführen.',
+   x:''},
+  {n:'Von Insel zu Insel',o:'Kletterhalle',f:'grün,gelb',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'',
+   desc:'Jedes Kind wählt eine schwierige, machbare Route. 3–5 Atempositionen definieren. Zwischen diesen muss die Luft angehalten werden; an den Positionen das weitere Vorgehen planen. Danach Route wiederholen – ohne Luftanhalten, aber gleicher Rhythmus.',
+   x:''},
+  {n:'Routenlesen',o:'Boulderhalle',f:'grün',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'',
+   desc:'Boulder 2–3-mal klettern und Bewegungen bewusst einprägen. Zwischen Versuchen den Boulder immer im Geiste durchgehen. Dann den Boulder blind klettern. Ein anderes Kind kontrolliert. Mehrfach wiederholbar.',
+   x:''},
+  {n:'Krafttraining',o:'Kletterhalle / Boulderhalle',f:'rot',k:'',s:'',d:'20–30 min',
+   desc:'Zirkeltraining mit so vielen Stationen, dass immer 2 Kinder pro Station sind – gegenseitig anfeuern, kontrollieren und Hilfestellungen geben. Für Kinder: mehr Wiederholungen, 1–3 Sets à 8–15 WH. Inspiration: DAV-Trainingsskript S. 64–66 „Balance of Power" (ggf. leichter anpassen).',
+   x:''},
+  {n:'Boulder verbinden',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'',
+   desc:'4–5 mittelschwere Boulder ohne Bodenkontakt hintereinander klettern. Zum Abklettern zur nächsten Startposition alle Griffe erlaubt. Herausforderung: mehrere gleichwertige Sets finden, damit viele Kinder gleichzeitig an der Wand sein können.',
+   x:''},
+  {n:'Boulder Shootout',o:'Boulderhalle',f:'rot',k:'',s:'',d:'',
+   desc:'Gruppen ähnlich starker Kletterer (2–3 pro Gruppe). Jedes Kind wählt 2–3 Boulder – macht 6 pro Gruppe. Gruppe geht von Boulder zu Boulder; 2 Versuche pro Kind. Wer am weitesten kommt: 1 Punkt (bei Gleichstand je 0,5). Kinder wählen taktisch nach ihren Stärken.',
+   x:''},
+  {n:'Dyno Route',o:'Kletterhalle',f:'gelb',k:'dynamische-bewegungen',s:'Dynamische Bewegungen',d:'',
+   desc:'Im Toprope eine einfache Route klettern und möglichst viele dynamische Züge / Sprünge einbauen. Idealerweise nur mit Sprüngen vorwärtsbewegen. Route sollte möglichst viele Henkel haben. Erst ab 3 m Höhe springen.',
+   x:''},
+  {n:'Dynamisch vs. Statisch',o:'Boulderhalle',f:'gelb',k:'dynamische-bewegungen',s:'Dynamische Bewegungen',d:'',
+   desc:'3–4 mittelschwere Boulder erst so statisch wie möglich, dann so dynamisch wie möglich klettern. Gerne in Gruppen; Kinder diskutieren ob es noch statischer oder dynamischer geht. Ggf. vorab Begriffe klären.',
+   x:''},
+  {n:'Pausenpositionen finden',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'',
+   desc:'Wandteil vorgeben; alle Kinder suchen sich die beste Pausenposition. Dann Wettkampf: wer hält am längsten / schafft X Minuten? Keine zu einfachen Positionen – keine No-Hand-Rests, am besten überhängender Wandteil.',
+   x:''}];
+
+const BC = {'rot':'b-rot','gelb':'b-gelb','grün':'b-grün','lila':'b-lila'};
+const BL = {'rot':'Rot','gelb':'Gelb','grün':'Grün','lila':'Lila'};
+
+function setCopyButtonState(i, ok) {
+  const btn = document.getElementById(`cp-${i}`);
+  if (!btn) return;
+  btn.textContent = ok ? '✓ Kopiert' : 'Kopieren fehlgeschlagen';
+  btn.classList.toggle('done', ok);
+  setTimeout(() => {
+    btn.textContent = 'Kopieren';
+    btn.classList.remove('done');
+  }, ok ? 1800 : 2400);
+}
+
+function fallbackCopyText(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  ta.style.pointerEvents = 'none';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, ta.value.length);
+  let ok = false;
+  try {
+    ok = document.execCommand('copy');
+  } catch (e) {
+    ok = false;
+  }
+  document.body.removeChild(ta);
+  return ok;
+}
+
+function copyCard(i) {
+  const eu = EU[i];
+  const lines = [eu.n];
+  if (eu.o) lines.push(`Ort: ${eu.o}`);
+  if (eu.f) lines.push(`Intensität: ${eu.f.split(',').map(c => BL[c.trim()]).join(', ')}`);
+  if (eu.s) lines.push(`Schwerpunkt: ${eu.s}`);
+  if (eu.d) lines.push(`Dauer: ${eu.d}`);
+  lines.push('', eu.desc);
+  if (eu.x) lines.push('', `Zusatzaufgabe: ${eu.x}`);
+  const text = lines.join('\n');
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text)
+      .then(() => setCopyButtonState(i, true))
+      .catch(() => setCopyButtonState(i, fallbackCopyText(text)));
+  } else {
+    setCopyButtonState(i, fallbackCopyText(text));
+  }
+}
+
+
+function inferFocusKeys(eu) {
+  if (!eu.k) return [];
+  return String(eu.k)
+    .split(',')
+    .map(v => v.trim())
+    .filter(Boolean);
+}
+
+
+document.getElementById('wuGrid').innerHTML = WARMUPS.map((w, i) => `
+  <div class="simple-card warmup-card" data-o="${w.o}" data-t="${w.t}" data-text="${(w.d + ' ' + w.o + ' ' + w.t).toLowerCase()}" id="wu-${i}">
+    <div class="simple-head">
+      <div class="simple-title">Aufwärmen</div>
+      <div class="simple-meta">
+        <span class="badge b-ort">${w.o}</span>
+        <span class="badge b-dur">${w.t}</span>
+      </div>
+    </div>
+    <div class="simple-body">${w.d}</div>
+  </div>
+`).join('');
+
+document.getElementById('stretchGrid').innerHTML = STRETCHES.map((s, i) => {
+  const type = inferStretchType(s);
+  return `
+  <div class="simple-card stretch-card" data-type="${type}" data-text="${(s.idea + ' ' + (s.link || '')).toLowerCase()}" id="stretch-${i}">
+    <div class="simple-head">
+      <div class="simple-title">Dehnen / Mobilität</div>
+      <div class="simple-meta">
+        <span class="badge b-sw">${stretchTypeLabel(type)}</span>
+      </div>
+    </div>
+    <div class="simple-body link-list">
+      <div>${s.idea}</div>
+      ${s.link ? `<div style="margin-top:8px"><a href="${s.link}" target="_blank" rel="noopener noreferrer">${s.link}</a></div>` : ``}
+    </div>
+  </div>`;
+}).join('');
+
+let activeWarmupOrt = 'alle', activeWarmupDuration = 'alle';
+let activeStretchType = 'alle';
+
+function applyWarmupFilters() {
+  const q = (document.getElementById('wuSearch').value || '').toLowerCase().trim();
+  document.querySelectorAll('.warmup-card').forEach(c => {
+    const ortOk = activeWarmupOrt === 'alle' || c.dataset.o === activeWarmupOrt;
+    const durOk = activeWarmupDuration === 'alle' || c.dataset.t === activeWarmupDuration;
+    const searchOk = !q || c.dataset.text.includes(q);
+    c.classList.toggle('hidden', !ortOk || !durOk || !searchOk);
+  });
+}
+
+function filterWarmupOrt(v, btn) {
+  const isAlreadyActive = activeWarmupOrt === v;
+  const next = (isAlreadyActive && v !== 'alle') ? 'alle' : v;
+  document.querySelectorAll('.fbtn-wu-ort-alle,.fbtn-wu-kh,.fbtn-wu-bh,.fbtn-wu-egal').forEach(b => b.classList.remove('on'));
+  const nextBtn = next === 'alle' ? document.querySelector('.fbtn-wu-ort-alle') : btn;
+  if (nextBtn) nextBtn.classList.add('on');
+  activeWarmupOrt = next;
+  applyWarmupFilters();
+}
+
+function filterWarmupDuration(v, btn) {
+  const isAlreadyActive = activeWarmupDuration === v;
+  const next = (isAlreadyActive && v !== 'alle') ? 'alle' : v;
+  document.querySelectorAll('.fbtn-wu-dauer-alle,.fbtn-wu-15,.fbtn-wu-15-30').forEach(b => b.classList.remove('on'));
+  const nextBtn = next === 'alle' ? document.querySelector('.fbtn-wu-dauer-alle') : btn;
+  if (nextBtn) nextBtn.classList.add('on');
+  activeWarmupDuration = next;
+  applyWarmupFilters();
+}
+
+function inferStretchType(s) {
+  const txt = ((s.idea || '') + ' ' + (s.link || '')).toLowerCase();
+  if (s.link) return 'video';
+  if (txt.includes('kind') || txt.includes('gruppe')) return 'gruppe';
+  return 'routine';
+}
+
+function stretchTypeLabel(t) {
+  return t === 'gruppe' ? 'Gruppe' : t === 'video' ? 'Mit Link' : 'Routine';
+}
+
+function applyStretchFilters() {
+  const q = (document.getElementById('stretchSearch').value || '').toLowerCase().trim();
+  document.querySelectorAll('.stretch-card').forEach(c => {
+    const typeOk = activeStretchType === 'alle' || c.dataset.type === activeStretchType;
+    const searchOk = !q || c.dataset.text.includes(q);
+    c.classList.toggle('hidden', !typeOk || !searchOk);
+  });
+}
+
+function filterStretchType(v, btn) {
+  const isAlreadyActive = activeStretchType === v;
+  const next = (isAlreadyActive && v !== 'alle') ? 'alle' : v;
+  document.querySelectorAll('.fbtn-stretch-art-alle,.fbtn-stretch-gruppe,.fbtn-stretch-routine,.fbtn-stretch-video').forEach(b => b.classList.remove('on'));
+  const nextBtn = next === 'alle' ? document.querySelector('.fbtn-stretch-art-alle') : btn;
+  if (nextBtn) nextBtn.classList.add('on');
+  activeStretchType = next;
+  applyStretchFilters();
+}
+
+document.getElementById('euGrid').innerHTML = EU.map((eu, i) => {
+  const badges = eu.f.split(',').map(c => `<span class="badge ${BC[c.trim()]}">${BL[c.trim()]}</span>`).join('');
+  const ort  = `<span class="badge b-ort">${eu.o}</span>`;
+  const sw   = eu.s ? `<span class="badge b-sw">${eu.s}</span>` : '';
+  const dur  = eu.d ? `<span class="badge b-dur">${eu.d}</span>` : '';
+  const foot = eu.x ? `<div class="eu-foot"><div class="eu-foot-lbl">Zusatzaufgabe</div><div class="eu-foot-txt">${eu.x}</div></div>` : '';
+  const dataO = eu.o.includes('/') ? 'both' : eu.o === 'Kletterhalle' ? 'KH' : 'BH';
+  const focusKeys = inferFocusKeys(eu).join(',');
+  return `<div class="eu-card" id="eu-${i}" data-f="${eu.f}" data-k="${focusKeys}" data-o="${dataO}" data-n="${eu.n.toLowerCase()}" data-desc="${eu.desc.toLowerCase()}">
+  <div class="eu-head">
+    <div class="eu-head-top">
+      <div class="eu-title">${eu.n}</div>
+      <button class="copy-btn" id="cp-${i}" onclick="copyCard(${i})">Kopieren</button>
+    </div>
+    <div class="eu-meta">${badges}${ort}${sw}${dur}</div>
+  </div>
+  <div class="eu-body">${eu.desc}</div>
+  ${foot}
+</div>`;
+}).join('');
+
+let activeColor = 'alle', activeOrt = 'alle', activeFocus = 'alle';
+
+function applyFilters() {
+  const q = (document.getElementById('euSearch').value || '').toLowerCase().trim();
+  document.querySelectorAll('.eu-card').forEach(c => {
+    const colorOk  = activeColor === 'alle' || c.dataset.f.includes(activeColor);
+    const ortOk    = activeOrt  === 'alle' || c.dataset.o === activeOrt || c.dataset.o === 'both';
+    const focusOk  = activeFocus === 'alle' || c.dataset.k.split(',').includes(activeFocus);
+    const searchOk = !q || c.dataset.n.includes(q) || c.dataset.desc.includes(q);
+    c.classList.toggle('hidden', !colorOk || !ortOk || !focusOk || !searchOk);
+  });
+}
+
+function filterColor(f, btn) {
+  const isAlreadyActive = activeColor === f;
+  const next = (isAlreadyActive && f !== 'alle') ? 'alle' : f;
+  const nextBtn = next === 'alle' ? document.querySelector('.fbtn-alle') : btn;
+  document.querySelectorAll('.fbtn-alle,.fbtn-rot,.fbtn-gelb,.fbtn-grün,.fbtn-lila').forEach(b => b.classList.remove('on'));
+  if (nextBtn) nextBtn.classList.add('on');
+  activeColor = next;
+  applyFilters();
+}
+
+function filterOrt(o, btn) {
+  const isAlreadyActive = activeOrt === o;
+  const next = (isAlreadyActive && o !== 'alle') ? 'alle' : o;
+  const nextBtn = next === 'alle' ? document.querySelector('.fbtn-ort-alle') : btn;
+  document.querySelectorAll('.fbtn-ort-alle,.fbtn-kh,.fbtn-bh').forEach(b => b.classList.remove('on'));
+  if (nextBtn) nextBtn.classList.add('on');
+  activeOrt = next;
+  applyFilters();
+}
+
+function filterFocus(f, btn) {
+  const isAlreadyActive = activeFocus === f;
+  const next = (isAlreadyActive && f !== 'alle') ? 'alle' : f;
+  const nextBtn = next === 'alle' ? document.querySelector('.fbtn-fokus-alle') : btn;
+  document.querySelectorAll('.fbtn-fokus-alle,.fbtn-fokus-fluessig,.fbtn-fokus-dynamik').forEach(b => b.classList.remove('on'));
+  if (nextBtn) nextBtn.classList.add('on');
+  activeFocus = next;
+  applyFilters();
+}
+
+function resetUnitFilters() {
+  const cbtn = document.querySelector('.fbtn-alle');
+  const obtn = document.querySelector('.fbtn-ort-alle');
+  const fbtn = document.querySelector('.fbtn-fokus-alle');
+  if (cbtn) filterColor('alle', cbtn);
+  if (obtn) filterOrt('alle', obtn);
+  if (fbtn) filterFocus('alle', fbtn);
+}
+
+function openSessionUnit(payload) {
+  let data = {};
+  try { data = JSON.parse(decodeURIComponent(payload)); } catch(e) {}
+  if (data.w) {
+    alert(`${data.w}
+
+Für Wettkampf-Termine ist statt der Einheitenansicht eher sinnvoll:
+• Treffpunkt / Uhrzeit
+• Startzeiten / Ablauf
+• Betreuer*innen
+• Teilnehmer*innen
+• Material / Checkliste`);
+    return;
+  }
+  const tabBtn = document.querySelector('.tabs .tab:nth-child(3)');
+  if (tabBtn) sw('eu', tabBtn);
+  let focus = 'alle';
+  const x = (data.x || '').toLowerCase();
+  if (/dynamisch/.test(x)) focus = 'dynamische-bewegungen';
+  else if (/flüssiger|fluessiger/.test(x)) focus = 'fluessiger-klettern';
+  const focusBtnMap = {
+    'alle': '.fbtn-fokus-alle',
+    'fluessiger-klettern': '.fbtn-fokus-fluessig',
+    'dynamische-bewegungen': '.fbtn-fokus-dynamik',
+  };
+  const colorBtn = data.e && data.e[0] ? document.querySelector(`.fbtn-${data.e[0]}`) : document.querySelector('.fbtn-alle');
+  const ortBtn = data.l ? document.querySelector(`.fbtn-${data.l === 'KH' ? 'kh' : 'bh'}`) : document.querySelector('.fbtn-ort-alle');
+  const focusBtn = document.querySelector(focusBtnMap[focus] || '.fbtn-fokus-alle');
+  if (colorBtn) filterColor(data.e && data.e[0] ? data.e[0] : 'alle', colorBtn);
+  if (ortBtn) filterOrt(data.l || 'alle', ortBtn);
+  if (focusBtn) filterFocus(focus, focusBtn);
+  const firstVisible = document.querySelector('.eu-card:not(.hidden)');
+  if (firstVisible) firstVisible.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function sw(id, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('p-' + id).classList.add('on');
+  if (id === 'eu') {
+    resetUnitFilters();
+  } else if (id === 'wu') {
+    applyWarmupFilters();
+  } else if (id === 'dehnen') {
+    applyStretchFilters();
+  }
+}
+</script>
+</body>
+</html>
