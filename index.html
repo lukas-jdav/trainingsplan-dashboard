@@ -52,8 +52,8 @@ body.fs-sm{font-size:12px}
 .p-rot{background:#FCEBEB;color:#A32D2D}
 .p-gelb{background:#FFF3DC;color:#7a4e00}
 .p-grün{background:#EBF8E1;color:#2e6b09}
-.p-lila{background:#EEEDFE;color:#3C3489}
-.wk{background:#E6F1FB;color:#185FA5;padding:2px 9px;border-radius:12px;font-size:.78em;font-weight:500;border:1px solid #B5D4F4;white-space:nowrap}
+.p-lila{background:#E6F1FB;color:#185FA5}
+.wk{background:#FCEBEB;color:#A32D2D;padding:2px 9px;border-radius:2px;font-size:.78em;font-weight:500;border:1px solid #E6B3B3;white-space:nowrap}
 .xt{font-size:.78em;color:#999;padding:1px 0}
 .heute-div{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:.82em;font-weight:500;color:#185FA5}
 .heute-div::before,.heute-div::after{content:'';flex:1;height:1px;background:#c8dff5}
@@ -74,7 +74,7 @@ body.fs-sm{font-size:12px}
 .fbtn-rot.on{background:#E24B4A}
 .fbtn-gelb.on{background:#BA7517}
 .fbtn-grün.on{background:#639922}
-.fbtn-lila.on{background:#7F77DD}
+.fbtn-lila.on{background:#185FA5}
 .fbtn-fokus-fluessig.on,.fbtn-fokus-dynamik.on{background:#185FA5}
 .row.clickable{cursor:pointer}
 .row.clickable:hover{border-color:#b5d4f4;background:#fafcff}
@@ -101,7 +101,7 @@ body.fs-sm{font-size:12px}
 .b-rot{background:#FCEBEB;color:#A32D2D}
 .b-gelb{background:#FFF3DC;color:#7a4e00}
 .b-grün{background:#EBF8E1;color:#2e6b09}
-.b-lila{background:#EEEDFE;color:#3C3489}
+.b-lila{background:#E6F1FB;color:#185FA5}
 .b-ort{background:#f0efea;color:#555}
 .b-sw{background:#E6F1FB;color:#185FA5}
 .b-dur{background:#f0efea;color:#666}
@@ -177,12 +177,12 @@ body.dark .b-sw{background:#1a2e48;color:#6aadff}
 body.dark .b-rot{background:#2e1a1a;color:#f08080}
 body.dark .b-gelb{background:#2a2010;color:#d4a060}
 body.dark .b-grün{background:#182818;color:#7aba60}
-body.dark .b-lila{background:#201a38;color:#b0a0e8}
+body.dark .b-lila{background:#1a2e48;color:#6aadff}
 body.dark .p-rot{background:#2e1a1a;color:#f08080}
 body.dark .p-gelb{background:#2a2010;color:#d4a060}
 body.dark .p-grün{background:#182818;color:#7aba60}
-body.dark .p-lila{background:#201a38;color:#b0a0e8}
-body.dark .wk{background:#1a2e48;color:#6aadff;border-color:#1e3a5a}
+body.dark .p-lila{background:#1a2e48;color:#6aadff}
+body.dark .wk{background:#2e1a1a;color:#f08080;border-color:#5a1e1e}
 body.dark .link-list a{color:#6aadff}
 body.dark .dm-btn{background:#2a2a32;border-color:#3a3a48;color:#aaa}
 body.dark .dm-btn:hover{background:#363644}
@@ -207,7 +207,7 @@ body.dark .dm-btn:hover{background:#363644}
   <div class="header-left">
     <h1>JDAV Leistungsgruppe</h1>
     <p class="sub">Trainingsplan Jan – Jun 2026</p>
-    <p class="sub" style="margin-top:4px">Plan: Jana · Dashboard: Lukas · Version 1.3</p>
+    <p class="sub" style="margin-top:4px">Plan: Jana · Dashboard: Lukas · Version 1.5</p>
   </div>
   <div class="header-right">
     <div class="fs-tog">
@@ -232,8 +232,8 @@ body.dark .dm-btn:hover{background:#363644}
       <span><span class="dot" style="background:#E24B4A"></span>Rot – Maximalkraft / Schnellkraft</span>
       <span><span class="dot" style="background:#BA7517"></span>Gelb – Kraftausdauer anaerob</span>
       <span><span class="dot" style="background:#639922"></span>Grün – Kraftausdauer aerob</span>
-      <span><span class="dot" style="background:#7F77DD"></span>Lila – Technik, Mentales &amp; Ausgleich (DAV: Blau)</span>
-      <span><span class="dot" style="background:#185FA5;border-radius:2px"></span>Wettkampf</span>
+      <span><span class="dot" style="background:#185FA5"></span>Blau – Technik, Mentales &amp; Ausgleich</span>
+      <span><span class="dot" style="background:#E24B4A;border-radius:2px"></span>Wettkampf</span>
     </div>
     <div class="vtog">
       <button class="vtbtn on" id="vt-aktuell" onclick="setPlanView('aktuell',this)">Aktuell</button>
@@ -283,7 +283,7 @@ body.dark .dm-btn:hover{background:#363644}
       <button class="fbtn fbtn-rot"  onclick="filterColor('rot',this)">Rot</button>
       <button class="fbtn fbtn-gelb" onclick="filterColor('gelb',this)">Gelb</button>
       <button class="fbtn fbtn-grün" onclick="filterColor('grün',this)">Grün</button>
-      <button class="fbtn fbtn-lila" onclick="filterColor('lila',this)">Lila</button>
+      <button class="fbtn fbtn-lila" onclick="filterColor('lila',this)">Blau</button>
       <span class="filter-sep"></span>
       <span class="fl">Ort:</span>
       <button class="fbtn fbtn-ort-alle on" onclick="filterOrt('alle',this)">Beide</button>
@@ -418,7 +418,7 @@ const S = [
 ];
 
 const MONTHS = [['Januar','01'],['Februar','02'],['März','03'],['April','04'],['Mai','05'],['Juni','06']];
-const CL = {rot:'Rot',gelb:'Gelb','grün':'Grün',lila:'Lila'};
+const CL = {rot:'Rot',gelb:'Gelb','grün':'Grün',lila:'Blau'};
 
 const today = new Date(); today.setHours(0,0,0,0);
 S.forEach(s => { s.date = parseDate(s.d); s.isPast = s.date < today; });
@@ -551,7 +551,7 @@ const EU = [{n:'Pyramiden Training',o:'Kletterhalle',f:'gelb',k:'',s:'',d:'45+ m
    x:'Zur Kontrolle: gedachte und reale Zeit vergleichen; kann auch für Projektrouten genutzt werden'}];
 
 const BC = {'rot':'b-rot','gelb':'b-gelb','grün':'b-grün','lila':'b-lila'};
-const BL = {'rot':'Rot','gelb':'Gelb','grün':'Grün','lila':'Lila'};
+const BL = {'rot':'Rot','gelb':'Gelb','grün':'Grün','lila':'Blau'};
 
 const OPTIONAL_EU = [
   {n:'Last Minute.com',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'30–60 min',
