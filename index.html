@@ -110,6 +110,12 @@ body.fs-sm{font-size:12px}
 .wu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
 .info-box{background:#fff;border:1px solid #e8e8e4;border-radius:12px;padding:12px 14px;color:#555;line-height:1.6;margin-bottom:12px}
 .error-box{margin-bottom:1rem;padding:12px 14px;border:1px solid #E6B3B3;border-radius:12px;background:#FCEBEB;color:#A32D2D;line-height:1.6;white-space:pre-line}
+.text-panel{background:#fff;border:1px solid #e8e8e4;border-radius:12px;padding:18px 20px;color:#444;line-height:1.7}
+.text-panel h2{font-size:1.15em;font-weight:600;margin-bottom:10px;color:#1a1a18}
+.text-panel h3{font-size:1em;font-weight:600;margin:18px 0 8px;color:#1a1a18}
+.text-panel p{margin-bottom:12px}
+.text-panel ul,.text-panel ol{margin:0 0 14px 22px}
+.text-panel li{margin-bottom:6px}
 .simple-card{background:#fff;border:1px solid #e8e8e4;border-radius:12px;overflow:hidden}
 .simple-head{padding:12px 14px 10px;border-bottom:1px solid #f0efea}
 .simple-title{font-size:1em;font-weight:500}
@@ -165,6 +171,8 @@ body.dark .fbtn-stretch-gruppe.on,.dark .fbtn-stretch-routine.on,
 body.dark .fbtn-stretch-video.on{background:#444}
 body.dark .eu-card,.dark .simple-card,.dark .info-box{background:#242430;border-color:#2e2e3a}
 body.dark .error-box{background:#2e1a1a;border-color:#5a1e1e;color:#f08080}
+body.dark .text-panel{background:#242430;border-color:#2e2e3a;color:#bbb}
+body.dark .text-panel h2,body.dark .text-panel h3{color:#e8e8e2}
 body.dark .eu-head,.dark .simple-head{border-color:#2e2e3a}
 body.dark .eu-title,.dark .simple-title{color:#e8e8e2}
 body.dark .eu-body,.dark .simple-body{color:#bbb}
@@ -209,7 +217,7 @@ body.dark .dm-btn:hover{background:#363644}
   <div class="header-left">
     <h1 id="meta-title">JDAV Leistungsgruppe</h1>
     <p class="sub" id="meta-subtitle">Trainingsplan Jan – Jun 2026</p>
-    <p class="sub" id="meta-credits" style="margin-top:4px">Plan: Jana · Dashboard: Lukas · Version 1.5</p>
+    <p class="sub" id="meta-credits" style="margin-top:4px">Plan: Jana · Dashboard: Lukas · Version 1.6</p>
   </div>
   <div class="header-right">
     <div class="fs-tog">
@@ -228,6 +236,7 @@ body.dark .dm-btn:hover{background:#363644}
   <button class="tab" onclick="sw('wu',this)">Aufwärmen</button>
   <button class="tab" onclick="sw('eu',this)">Einheiten</button>
   <button class="tab" onclick="sw('dehnen',this)">Dehnen</button>
+  <button class="tab" onclick="sw('methode',this)">Trainingsplan erklärt</button>
 </div>
 
 <div class="panel on" id="p-plan">
@@ -333,6 +342,102 @@ body.dark .dm-btn:hover{background:#363644}
   <div class="wu-grid" id="stretchGrid"></div>
 </div>
 
+<div class="panel" id="p-methode">
+  <div class="text-panel">
+    <h2>So funktioniert unser Trainingsplan</h2>
+    <p>Unser Trainingsplan orientiert sich am Trainingsskript des DAV für das Wettkampfklettern. Dort wird beschrieben, dass gutes Klettertraining nicht einfach nur aus vielen einzelnen Übungen besteht, sondern aus einer klaren Methode zur Trainingsplanung. Ziel ist, dass das Training systematisch, zielgerichtet und abwechslungsreich aufgebaut ist.</p>
+
+    <h3>Die Grundidee</h3>
+    <p>Im DAV-Trainingsskript wird das kletterspezifische Training in verschiedene Intensitäten eingeteilt. So werden nicht immer nur dieselben Fähigkeiten trainiert, sondern unterschiedliche Belastungen sinnvoll kombiniert. Das Modell arbeitet mit vier Farben:</p>
+    <ul>
+      <li><strong>Rot = intensiv</strong><br>z. B. Maximalkraft, Schnellkraft, harte Boulder, Ausbouldern</li>
+      <li><strong>Gelb = mittel</strong><br>z. B. Kraftausdauer anaerob, Boulder bis kürzere Routen</li>
+      <li><strong>Grün = leicht</strong><br>z. B. Kraftausdauer aerob, längere Routen</li>
+      <li><strong>Blau = ergänzend</strong><br>z. B. Beweglichkeit, Mentales, Ausgleichstraining, allgemeines Ausdauertraining</li>
+    </ul>
+
+    <h3>Warum wir nicht immer das Gleiche trainieren</h3>
+    <p>Im DAV-Skript wird erklärt, dass unterschiedliche Intensitäten auch unterschiedliche Anpassungen bewirken. Deshalb werden alle Intensitäten parallel trainiert, aber jeweils mit einem Schwerpunkt. So wird das Training abwechslungsreicher und verschiedene Kraftarten und Fähigkeiten werden gleichmäßig entwickelt.</p>
+    <p>Das bedeutet bei uns:</p>
+    <ul>
+      <li>In einer Phase legen wir den Schwerpunkt zum Beispiel auf Technik, Kraftausdauer, Maximalkraft, Bewegungsfluss, Mentales oder Wettkampfvorbereitung.</li>
+      <li>Trotzdem bleiben auch die anderen Bereiche im Training erhalten.</li>
+    </ul>
+
+    <h3>Wie ein Trainingsblock aufgebaut ist</h3>
+    <p>Das DAV-Skript empfiehlt, von einer gewählten Zielintensität ungefähr 6–10 Trainingseinheiten in einen Plan einzubauen. Gleichzeitig sollte in jeder Woche beziehungsweise spätestens innerhalb von 10 Tagen möglichst eine rote, eine gelbe und eine grüne Einheit vorkommen.</p>
+    <p>Für unsere Gruppe heißt das:</p>
+    <ul>
+      <li>Wir arbeiten meist über mehrere Wochen an einem Schwerpunkt.</li>
+      <li>In dieser Zeit tauchen passende Inhalte immer wieder auf.</li>
+      <li>So kann sich der Körper besser anpassen und ihr lernt die Inhalte nicht nur kurz, sondern nachhaltig.</li>
+    </ul>
+
+    <h3>Was das für euch konkret bedeutet</h3>
+    <p>Der Trainingsplan soll nicht nur anstrengend sein, sondern verständlich und sinnvoll. Deshalb überlegen wir bei jeder Phase:</p>
+    <ol>
+      <li><strong>Was ist das Ziel?</strong><br>Zum Beispiel: ruhiger klettern, besser antreten, flüssiger klettern, mehr Vertrauen im Vorstieg, besser mit Druck umgehen.</li>
+      <li><strong>Welcher Trainingsschwerpunkt passt dazu?</strong><br>Zum Beispiel Technik, Kraftausdauer anaerob, Kraftausdauer aerob, Maximalkraft oder Mentales.</li>
+      <li><strong>Welche Trainingseinheiten helfen dabei?</strong><br>Dafür wählen wir passende Übungen und Aufgaben aus dem Klettertraining aus.</li>
+    </ol>
+
+    <h3>Warum es auch leichte und ergänzende Einheiten gibt</h3>
+    <p>Im DAV-Skript steht ausdrücklich, dass nach einer roten Einheit in der Regel ein Ruhetag oder eine grüne Einheit folgen sollte. Außerdem können blaue Einheiten beliebig ergänzt und mit anderen Einheiten kombiniert werden.</p>
+    <p>Deshalb gehören bei uns auch dazu:</p>
+    <ul>
+      <li>Beweglichkeit</li>
+      <li>Körperspannung</li>
+      <li>mentales Training</li>
+      <li>Koordination</li>
+      <li>lockeres Klettern</li>
+      <li>freies Klettern</li>
+      <li>individuelle Projekte</li>
+    </ul>
+    <p>Diese Einheiten sind nicht „weniger wichtig“, sondern helfen euch dabei, langfristig besser und gesünder zu trainieren.</p>
+
+    <h3>Warum Technik und Taktik so wichtig sind</h3>
+    <p>Das DAV-Trainingsskript betont, dass Klettern nicht nur aus Kraft besteht. Im Mittelpunkt stehen ausdrücklich auch die technisch-taktischen Fertigkeiten. Der Schwerpunkt liegt gerade nicht nur auf dem „Kraft bolzen“, sondern auf der Verbesserung von Kraft und Technik.</p>
+    <p>Darum trainieren wir zum Beispiel auch:</p>
+    <ul>
+      <li>sauberes Treten</li>
+      <li>gute Körperpositionen</li>
+      <li>Bewegungsfluss</li>
+      <li>Routenlesen</li>
+      <li>Ruhepunkte nutzen</li>
+      <li>Wettkampfsituationen besser bewältigen</li>
+    </ul>
+
+    <h3>Warum euer eigenes Gefühl wichtig ist</h3>
+    <p>Im DAV-Skript spielt auch das subjektive Belastungsempfinden eine Rolle. Damit ist gemeint, wie anstrengend sich ein Training für euch wirklich anfühlt. Nicht jedes harte Training fühlt sich an jedem Tag gleich an. Deshalb ist es wichtig, auf den eigenen Körper zu hören und Belastung wahrzunehmen.</p>
+    <p>Das bedeutet:</p>
+    <ul>
+      <li>Nicht jedes Training fühlt sich gleich schwer an.</li>
+      <li>Auch eine eigentlich „leichte“ Einheit kann an einem Tag anstrengend sein.</li>
+      <li>Gute Sportler*innen lernen, ihren Körper immer besser einzuschätzen.</li>
+    </ul>
+
+    <h3>Unsere Umsetzung in der JDAV Leistungsgruppe</h3>
+    <p>Zusätzlich zum DAV-Modell orientieren wir uns in der Gruppe an euren individuellen Stärken und Schwächen. In unserer Trainingskonzeption ist festgehalten, dass dafür Ziele gemeinsam besprochen und daraus passende Trainingsaufgaben abgeleitet werden.</p>
+    <p>Das bedeutet:</p>
+    <ul>
+      <li>Ihr werdet in die Zielsetzung mit einbezogen.</li>
+      <li>Nicht alle trainieren immer exakt dasselbe.</li>
+      <li>Auch wenn zwei Kinder das gleiche Ziel haben, können die Trainingsaufgaben unterschiedlich aussehen.</li>
+    </ul>
+
+    <h3>Kurz zusammengefasst</h3>
+    <p>Unser Trainingsplan folgt dieser Methode:</p>
+    <ul>
+      <li>Training mit Plan statt zufällig</li>
+      <li>Training in verschiedenen Intensitäten</li>
+      <li>ein Schwerpunkt über mehrere Einheiten</li>
+      <li>Technik, Kraft, Taktik und Mentales zusammen denken</li>
+      <li>individuelle Ziele und Stärken berücksichtigen</li>
+    </ul>
+    <p>So entsteht ein Training, das euch Schritt für Schritt weiterbringt und euch hilft, euch als Kletter*innen nachhaltig zu verbessern.</p>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script>
@@ -388,7 +493,7 @@ const HEADER_DEFAULTS = {
   subtitle: 'Trainingsplan Jan – Jun 2026',
   planOwner: 'Jana',
   dashboardOwner: 'Lukas',
-  version: '1.5',
+  version: '1.6',
 };
 
 let scheduleMeta = {...HEADER_DEFAULTS};

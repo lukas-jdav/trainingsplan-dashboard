@@ -3,7 +3,7 @@ meta:
   subtitle: "Trainingsplan Jan – Jun 2026"
   plan_owner: "Jana"
   dashboard_owner: "Lukas"
-  version: "1.5"
+  version: "1.6"
 entries:
   - date: "2026-01-31"
     location: "BH"
