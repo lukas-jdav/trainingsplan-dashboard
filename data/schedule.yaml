@@ -1,0 +1,145 @@
+meta:
+  title: "JDAV Leistungsgruppe"
+  subtitle: "Trainingsplan Jan – Jun 2026"
+  plan_owner: "Jana"
+  dashboard_owner: "Lukas"
+  version: "1.5"
+entries:
+  - date: "2026-01-31"
+    location: "BH"
+    colors: ["grün"]
+  - date: "2026-02-05"
+    location: "KH"
+    colors: ["grün"]
+    note: "Schwerpunkt flüssiger Klettern"
+  - date: "2026-02-07"
+    location: "BH"
+    colors: ["gelb"]
+  - date: "2026-02-12"
+    location: "KH"
+    colors: ["grün"]
+  - date: "2026-02-14"
+    location: "BH"
+    colors: ["gelb"]
+    note: "Wettkampf-Aufwärmroutine erarbeiten"
+  - date: "2026-02-19"
+    location: "KH"
+    colors: ["grün"]
+    note: "Schwerpunkt flüssiger Klettern"
+  - date: "2026-02-21"
+    location: "BH"
+    colors: ["grün"]
+  - date: "2026-02-26"
+    location: "KH"
+    colors: ["gelb", "rot"]
+    note: "Wettkampfaufwärmen · Projektieren / Onsight"
+  - date: "2026-02-28"
+    location: "BH"
+    colors: ["grün"]
+    note: "Schwerpunkt flüssiger Klettern"
+  - date: "2026-03-05"
+    location: "KH"
+    colors: ["grün"]
+  - date: "2026-03-07"
+    location: "BH"
+    colors: ["rot"]
+  - date: "2026-03-12"
+    location: "KH"
+    colors: ["grün"]
+    note: "Schwerpunkt flüssiger Klettern"
+  - date: "2026-03-14"
+    location: "BH"
+    colors: ["gelb"]
+  - date: "2026-04-02"
+    location: "KH"
+    colors: ["rot"]
+    note: "Schwerpunkt dynamisch Klettern"
+  - date: "2026-04-04"
+    location: "BH"
+    colors: ["rot", "gelb"]
+    note: "Wettkampfaufwärmen · Flash the Set / Boulder Shoot Out"
+  - date: "2026-04-09"
+    location: "KH"
+    colors: ["grün", "lila"]
+  - date: "2026-04-11"
+    location: "BH"
+    colors: ["gelb"]
+    event: "LM Bouldern"
+  - date: "2026-04-16"
+    location: "KH"
+    colors: ["grün"]
+    note: "Schwerpunkt flüssiger Klettern"
+  - date: "2026-04-18"
+    location: "BH"
+    colors: ["rot"]
+    event: "Kidscup"
+  - date: "2026-04-23"
+    location: "KH"
+    colors: ["grün"]
+    note: "Schwerpunkt flüssiger Klettern"
+  - date: "2026-04-25"
+    location: "BH"
+    colors: ["gelb"]
+  - date: "2026-04-30"
+    location: "KH"
+    colors: ["grün"]
+  - date: "2026-05-02"
+    location: "BH"
+    colors: ["rot"]
+  - date: "2026-05-07"
+    location: "KH"
+    colors: ["grün"]
+    note: "Schwerpunkt flüssiger Klettern"
+  - date: "2026-05-09"
+    location: "BH"
+    colors: ["gelb"]
+  - date: "2026-05-14"
+    location: "KH"
+    colors: ["grün"]
+    note: "Schwerpunkt flüssiger Klettern"
+  - date: "2026-05-16"
+    location: "BH"
+    colors: ["rot"]
+  - date: "2026-05-21"
+    location: "KH"
+    colors: ["grün"]
+  - date: "2026-05-23"
+    location: "BH"
+    colors: ["gelb"]
+    note: "Schwerpunkt flüssiger Klettern"
+  - date: "2026-05-28"
+    location: "KH"
+    colors: ["grün", "lila"]
+    note: "Wettkampfaufwärmen"
+  - date: "2026-05-30"
+    location: "BH"
+    colors: ["gelb"]
+    event: "LM Lead"
+  - date: "2026-06-04"
+    location: "KH"
+    colors: ["grün"]
+    note: "Schwerpunkt flüssiger Klettern"
+  - date: "2026-06-06"
+    location: "BH"
+    colors: ["rot"]
+  - date: "2026-06-11"
+    location: "KH"
+    colors: ["grün"]
+    note: "Schwerpunkt flüssiger Klettern"
+  - date: "2026-06-13"
+    location: "BH"
+    colors: ["gelb"]
+    event: "LM Speed / Kidscup"
+  - date: "2026-06-18"
+    location: "KH"
+    colors: ["grün"]
+  - date: "2026-06-20"
+    location: "BH"
+    colors: ["rot"]
+  - date: "2026-06-25"
+    location: "KH"
+    colors: ["grün"]
+    note: "Schwerpunkt flüssiger Klettern"
+  - date: "2026-06-27"
+    location: "BH"
+    colors: ["grün"]

@@ -109,6 +109,7 @@ body.fs-sm{font-size:12px}
 
 .wu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
 .info-box{background:#fff;border:1px solid #e8e8e4;border-radius:12px;padding:12px 14px;color:#555;line-height:1.6;margin-bottom:12px}
+.error-box{margin-bottom:1rem;padding:12px 14px;border:1px solid #E6B3B3;border-radius:12px;background:#FCEBEB;color:#A32D2D;line-height:1.6;white-space:pre-line}
 .simple-card{background:#fff;border:1px solid #e8e8e4;border-radius:12px;overflow:hidden}
 .simple-head{padding:12px 14px 10px;border-bottom:1px solid #f0efea}
 .simple-title{font-size:1em;font-weight:500}
@@ -163,6 +164,7 @@ body.dark .fbtn-wu-15.on,.dark .fbtn-wu-15-30.on,.dark .fbtn-stretch-art-alle.on
 body.dark .fbtn-stretch-gruppe.on,.dark .fbtn-stretch-routine.on,
 body.dark .fbtn-stretch-video.on{background:#444}
 body.dark .eu-card,.dark .simple-card,.dark .info-box{background:#242430;border-color:#2e2e3a}
+body.dark .error-box{background:#2e1a1a;border-color:#5a1e1e;color:#f08080}
 body.dark .eu-head,.dark .simple-head{border-color:#2e2e3a}
 body.dark .eu-title,.dark .simple-title{color:#e8e8e2}
 body.dark .eu-body,.dark .simple-body{color:#bbb}
@@ -205,9 +207,9 @@ body.dark .dm-btn:hover{background:#363644}
 
 <div class="header">
   <div class="header-left">
-    <h1>JDAV Leistungsgruppe</h1>
-    <p class="sub">Trainingsplan Jan – Jun 2026</p>
-    <p class="sub" style="margin-top:4px">Plan: Jana · Dashboard: Lukas · Version 1.5</p>
+    <h1 id="meta-title">JDAV Leistungsgruppe</h1>
+    <p class="sub" id="meta-subtitle">Trainingsplan Jan – Jun 2026</p>
+    <p class="sub" id="meta-credits" style="margin-top:4px">Plan: Jana · Dashboard: Lukas · Version 1.5</p>
   </div>
   <div class="header-right">
     <div class="fs-tog">
@@ -218,6 +220,8 @@ body.dark .dm-btn:hover{background:#363644}
     <button class="dm-btn" id="dm-btn" onclick="toggleDark()" title="Dark Mode umschalten">🌙</button>
   </div>
 </div>
+
+<div class="error-box" id="errorBox" hidden></div>
 
 <div class="tabs">
   <button class="tab on" onclick="sw('plan',this)">Trainingsplan</button>
@@ -329,6 +333,8 @@ body.dark .dm-btn:hover{background:#363644}
   <div class="wu-grid" id="stretchGrid"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script>
 function toggleDark() {
   const isDark = document.body.classList.toggle('dark');
@@ -354,11 +360,6 @@ function setFont(sz) {
   ['sm','md','lg'].forEach(s => document.getElementById('fs-'+s).classList.toggle('on', s === sz));
 }
 
-function parseDate(dstr) {
-  return new Date(2026, parseInt(dstr.slice(3,5))-1, parseInt(dstr.slice(0,2)));
-}
-
-
 const WARMUPS = [
   {o:'Kletterhalle', t:'15 min', d:'5 Minuten aufwärmen in der Gruppe am Boden + eine Route 2/3 Grade unter Flashniveau'},
   {o:'Kletterhalle', t:'15 min', d:'Eine Route 4/3 Grade unter Rotpunktniveau + eine Route 2/3 Grade unter Flashniveau'},
@@ -375,83 +376,301 @@ const STRETCHES = [
   {idea:'Yoga (für eine beispielhafte Routine siehe Link)', link:'https://www.youtube.com/watch?v=_x2rJEQ_ntc'}
 ];
 
-const S = [
-  {d:'31.01. Sa',l:'BH',e:['grün'],w:null},
-  {d:'05.02. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
-  {d:'07.02. Sa',l:'BH',e:['gelb'],w:null},
-  {d:'12.02. Do',l:'KH',e:['grün'],w:null},
-  {d:'14.02. Sa',l:'BH',e:['gelb'],w:null,x:'Wettkampf-Aufwärmroutine erarbeiten'},
-  {d:'19.02. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
-  {d:'21.02. Sa',l:'BH',e:['grün'],w:null},
-  {d:'26.02. Do',l:'KH',e:['gelb','rot'],w:null,x:'Wettkampfaufwärmen · Projektieren / Onsight'},
-  {d:'28.02. Sa',l:'BH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
-  {d:'05.03. Do',l:'KH',e:['grün'],w:null},
-  {d:'07.03. Sa',l:'BH',e:['rot'],w:null},
-  {d:'12.03. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
-  {d:'14.03. Sa',l:'BH',e:['gelb'],w:null},
-  {d:'02.04. Do',l:'KH',e:['rot'],w:null,x:'Schwerpunkt dynamisch Klettern'},
-  {d:'04.04. Sa',l:'BH',e:['rot','gelb'],w:null,x:'Wettkampfaufwärmen · Flash the Set / Boulder Shoot Out'},
-  {d:'09.04. Do',l:'KH',e:['grün','lila'],w:null},
-  {d:'11.04. Sa',l:'BH',e:['gelb'],w:'LM Bouldern'},
-  {d:'16.04. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
-  {d:'18.04. Sa',l:'BH',e:['rot'],w:'Kidscup'},
-  {d:'23.04. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
-  {d:'25.04. Sa',l:'BH',e:['gelb'],w:null},
-  {d:'30.04. Do',l:'KH',e:['grün'],w:null},
-  {d:'02.05. Sa',l:'BH',e:['rot'],w:null},
-  {d:'07.05. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
-  {d:'09.05. Sa',l:'BH',e:['gelb'],w:null},
-  {d:'14.05. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
-  {d:'16.05. Sa',l:'BH',e:['rot'],w:null},
-  {d:'21.05. Do',l:'KH',e:['grün'],w:null},
-  {d:'23.05. Sa',l:'BH',e:['gelb'],w:null,x:'Schwerpunkt flüssiger Klettern'},
-  {d:'28.05. Do',l:'KH',e:['grün','lila'],w:null,x:'Wettkampfaufwärmen'},
-  {d:'30.05. Sa',l:'BH',e:['gelb'],w:'LM Lead'},
-  {d:'04.06. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
-  {d:'06.06. Sa',l:'BH',e:['rot'],w:null},
-  {d:'11.06. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
-  {d:'13.06. Sa',l:'BH',e:['gelb'],w:'LM Speed / Kidscup'},
-  {d:'18.06. Do',l:'KH',e:['grün'],w:null},
-  {d:'20.06. Sa',l:'BH',e:['rot'],w:null},
-  {d:'25.06. Do',l:'KH',e:['grün'],w:null,x:'Schwerpunkt flüssiger Klettern'},
-  {d:'27.06. Sa',l:'BH',e:['grün'],w:null},
-];
+const VALID_COLORS = ['rot', 'gelb', 'grün', 'lila'];
+const VALID_COLOR_SET = new Set(VALID_COLORS);
+const VALID_PLAN_LOCATIONS = new Set(['KH', 'BH']);
+const VALID_UNIT_LOCATIONS = new Set(['Kletterhalle', 'Boulderhalle', 'Kletterhalle / Boulderhalle']);
+const BC = {rot:'b-rot', gelb:'b-gelb', 'grün':'b-grün', lila:'b-lila'};
+const BL = {rot:'Rot', gelb:'Gelb', 'grün':'Grün', lila:'Blau'};
+const CL = {...BL};
+const HEADER_DEFAULTS = {
+  title: 'JDAV Leistungsgruppe',
+  subtitle: 'Trainingsplan Jan – Jun 2026',
+  planOwner: 'Jana',
+  dashboardOwner: 'Lukas',
+  version: '1.5',
+};
 
-const MONTHS = [['Januar','01'],['Februar','02'],['März','03'],['April','04'],['Mai','05'],['Juni','06']];
-const CL = {rot:'Rot',gelb:'Gelb','grün':'Grün',lila:'Blau'};
+let scheduleMeta = {...HEADER_DEFAULTS};
+let S = [];
+let EU = [];
+let OPTIONAL_EU = [];
+let today = getToday();
+let pastSessions = [];
+let last3 = new Set();
+let nextUpDate = null;
 
-const today = new Date(); today.setHours(0,0,0,0);
-S.forEach(s => { s.date = parseDate(s.d); s.isPast = s.date < today; });
-const pastSessions = S.filter(s => s.isPast);
-const last3 = new Set(pastSessions.slice(-3).map(s => s.d));
-const nextUpDate = S.find(s => !s.isPast);
+function getToday() {
+  const value = new Date();
+  value.setHours(0,0,0,0);
+  return value;
+}
+
+function showError(message) {
+  const box = document.getElementById('errorBox');
+  if (!box) return;
+  box.hidden = false;
+  box.textContent = message;
+}
+
+function clearError() {
+  const box = document.getElementById('errorBox');
+  if (!box) return;
+  box.hidden = true;
+  box.textContent = '';
+}
+
+function requireString(value, context) {
+  const text = String(value ?? '').trim();
+  if (!text) throw new Error(`${context} ist erforderlich.`);
+  return text;
+}
+
+function parseIsoDate(value, context) {
+  const text = requireString(value, context);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+    throw new Error(`${context} muss im Format YYYY-MM-DD vorliegen.`);
+  }
+  const [year, month, day] = text.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+    throw new Error(`${context} ist kein gültiges Datum.`);
+  }
+  return {text, date};
+}
+
+function parsePlanLocation(value, context) {
+  const text = requireString(value, context);
+  if (!VALID_PLAN_LOCATIONS.has(text)) {
+    throw new Error(`${context} muss KH oder BH sein.`);
+  }
+  return text;
+}
+
+function parseUnitLocation(value, context) {
+  const text = requireString(value, context);
+  if (!VALID_UNIT_LOCATIONS.has(text)) {
+    throw new Error(`${context} ist ungültig.`);
+  }
+  return text;
+}
+
+function normalizeColors(colors, context) {
+  if (!Array.isArray(colors) || !colors.length) {
+    throw new Error(`${context} muss mindestens eine Farbe enthalten.`);
+  }
+  return colors.map(color => {
+    const text = String(color ?? '').trim();
+    if (!VALID_COLOR_SET.has(text)) {
+      throw new Error(`${context} enthält die unbekannte Farbe "${text}".`);
+    }
+    return text;
+  });
+}
+
+function parseCsvColors(value, context) {
+  const colors = String(value ?? '')
+    .split('|')
+    .map(part => part.trim())
+    .filter(Boolean);
+  return normalizeColors(colors, context);
+}
+
+function parseYamlColors(value, context) {
+  if (!Array.isArray(value)) {
+    throw new Error(`${context} muss eine Liste sein.`);
+  }
+  return normalizeColors(value, context);
+}
+
+function parseOptionalFlag(value, context) {
+  const text = String(value ?? '').trim().toLowerCase();
+  if (text === 'true') return true;
+  if (text === 'false') return false;
+  throw new Error(`${context} muss true oder false sein.`);
+}
+
+function formatDateLabel(date) {
+  const dayMonth = new Intl.DateTimeFormat('de-DE', {day:'2-digit', month:'2-digit'}).format(date);
+  const weekday = new Intl.DateTimeFormat('de-DE', {weekday:'short'}).format(date);
+  return `${dayMonth} ${weekday}`;
+}
+
+function formatMonthLabel(date) {
+  const formatted = new Intl.DateTimeFormat('de-DE', {month:'long', year:'numeric'}).format(date);
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+}
+
+function labelForLocationCode(code) {
+  return code === 'KH' ? 'Kletterhalle' : 'Boulderhalle';
+}
+
+function setHeaderMeta(meta) {
+  scheduleMeta = meta ? {...meta} : {...HEADER_DEFAULTS};
+  const title = document.getElementById('meta-title');
+  const subtitle = document.getElementById('meta-subtitle');
+  const credits = document.getElementById('meta-credits');
+  if (title) title.textContent = scheduleMeta.title;
+  if (subtitle) subtitle.textContent = scheduleMeta.subtitle;
+  if (credits) credits.textContent = `Plan: ${scheduleMeta.planOwner} · Dashboard: ${scheduleMeta.dashboardOwner} · Version ${scheduleMeta.version}`;
+  document.title = `${scheduleMeta.title} – Trainer-Dashboard`;
+}
+
+async function fetchTextFile(path) {
+  const response = await fetch(path, {cache: 'no-store'});
+  if (!response.ok) {
+    throw new Error(`${path} konnte nicht geladen werden (${response.status}).`);
+  }
+  return response.text();
+}
+
+async function loadUnits() {
+  const csvText = await fetchTextFile('data/units.csv');
+  return new Promise((resolve, reject) => {
+    Papa.parse(csvText, {
+      header: true,
+      skipEmptyLines: 'greedy',
+      complete(results) {
+        if (results.errors && results.errors.length) {
+          reject(new Error(`units.csv konnte nicht gelesen werden: ${results.errors[0].message}`));
+          return;
+        }
+        const requiredFields = ['id', 'title', 'location', 'colors', 'focus_key', 'focus_label', 'duration', 'description', 'extra', 'optional'];
+        const fields = results.meta.fields || [];
+        const missing = requiredFields.filter(field => !fields.includes(field));
+        if (missing.length) {
+          reject(new Error(`units.csv fehlt folgende Spalten: ${missing.join(', ')}.`));
+          return;
+        }
+        try {
+          const seenIds = new Set();
+          const units = results.data.map((row, index) => {
+            const ctx = `units.csv Zeile ${index + 2}`;
+            const id = requireString(row.id, `${ctx} id`);
+            if (seenIds.has(id)) throw new Error(`${ctx} enthält die doppelte id "${id}".`);
+            seenIds.add(id);
+            const colors = parseCsvColors(row.colors, `${ctx} colors`);
+            return {
+              id,
+              n: requireString(row.title, `${ctx} title`),
+              o: parseUnitLocation(row.location, `${ctx} location`),
+              f: colors.join(','),
+              k: String(row.focus_key ?? '').trim(),
+              s: String(row.focus_label ?? '').trim(),
+              d: String(row.duration ?? '').trim(),
+              desc: requireString(row.description, `${ctx} description`),
+              x: String(row.extra ?? '').trim(),
+              optional: parseOptionalFlag(row.optional, `${ctx} optional`),
+            };
+          });
+          resolve(units);
+        } catch (error) {
+          reject(error);
+        }
+      },
+      error(error) {
+        reject(new Error(`units.csv konnte nicht gelesen werden: ${error.message}`));
+      }
+    });
+  });
+}
+
+async function loadSchedule() {
+  const yamlText = await fetchTextFile('data/schedule.yaml');
+  let parsed;
+  try {
+    parsed = window.jsyaml.load(yamlText);
+  } catch (error) {
+    throw new Error(`schedule.yaml ist kein gültiges YAML: ${error.message}`);
+  }
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error('schedule.yaml ist leer oder ungültig.');
+  }
+  const meta = parsed.meta;
+  if (!meta || typeof meta !== 'object') {
+    throw new Error('schedule.yaml benötigt einen meta-Block.');
+  }
+  const normalizedMeta = {
+    title: requireString(meta.title, 'schedule.yaml meta.title'),
+    subtitle: requireString(meta.subtitle, 'schedule.yaml meta.subtitle'),
+    planOwner: requireString(meta.plan_owner, 'schedule.yaml meta.plan_owner'),
+    dashboardOwner: requireString(meta.dashboard_owner, 'schedule.yaml meta.dashboard_owner'),
+    version: requireString(meta.version, 'schedule.yaml meta.version'),
+  };
+  if (!Array.isArray(parsed.entries) || !parsed.entries.length) {
+    throw new Error('schedule.yaml benötigt mindestens einen Eintrag in entries.');
+  }
+  const entries = parsed.entries.map((entry, index) => {
+    const ctx = `schedule.yaml Eintrag ${index + 1}`;
+    const parsedDate = parseIsoDate(entry.date, `${ctx} date`);
+    const location = parsePlanLocation(entry.location, `${ctx} location`);
+    const colors = parseYamlColors(entry.colors, `${ctx} colors`);
+    return {
+      date: parsedDate.date,
+      dateIso: parsedDate.text,
+      d: formatDateLabel(parsedDate.date),
+      l: location,
+      e: colors,
+      x: String(entry.note ?? '').trim(),
+      w: String(entry.event ?? '').trim(),
+      monthKey: `${parsedDate.date.getFullYear()}-${String(parsedDate.date.getMonth() + 1).padStart(2, '0')}`,
+      monthLabel: formatMonthLabel(parsedDate.date),
+      isPast: false,
+    };
+  }).sort((a, b) => a.date - b.date);
+  return {meta: normalizedMeta, entries};
+}
+
+function updateScheduleState() {
+  today = getToday();
+  S.forEach(entry => { entry.isPast = entry.date < today; });
+  pastSessions = S.filter(entry => entry.isPast);
+  last3 = new Set(pastSessions.slice(-3).map(entry => entry.dateIso));
+  nextUpDate = S.find(entry => !entry.isPast) || null;
+}
+
+function renderUnits() {
+  document.getElementById('euGrid').innerHTML = EU.map((eu, i) => renderEUCard(eu, i, false)).join('');
+  document.getElementById('optGrid').innerHTML = OPTIONAL_EU.map((eu, i) => renderEUCard(eu, i, true)).join('');
+  applyFilters();
+}
+
+function clearUnits() {
+  document.getElementById('euGrid').innerHTML = '';
+  document.getElementById('optGrid').innerHTML = '';
+  const sec = document.getElementById('optionalSection');
+  if (sec) sec.style.display = 'none';
+}
 
 function buildPlan() {
   let html = '';
-  MONTHS.forEach(([name, mnum]) => {
-    const ms = S.filter(s => s.d.slice(3,5) === mnum);
-    if (!ms.length) return;
-    html += `<div class="month" data-m="${mnum}"><div class="mh">${name} 2026</div>`;
-    ms.forEach(s => {
-      if (nextUpDate && s.d === nextUpDate.d && pastSessions.length > 0)
-        html += `<div class="heute-div">Heute – ${today.toLocaleDateString('de-DE',{day:'2-digit',month:'long'})}</div>`;
-      const cls = ['row','clickable', s.isPast?'past':'', (!s.isPast&&nextUpDate&&s.d===nextUpDate.d)?'next-up':''].filter(Boolean).join(' ');
-      const vis = !s.isPast || last3.has(s.d);
-      const payload = encodeURIComponent(JSON.stringify({e:s.e,l:s.l,x:s.x||'',w:s.w||''}));
-      html += `<div class="${cls}" data-plan="${payload}" data-past="${s.isPast?1:0}" data-in3="${last3.has(s.d)?1:0}" ${!vis?'style="display:none"':''} onclick="openSessionUnit(this.dataset.plan)">`;
-      html += `<span class="date">${s.d}</span><span class="loc">${s.l==='KH'?'Kletterhalle':'Boulderhalle'}</span>`;
-      html += `<div class="pills">`;
-      if (!s.w) html += s.e.map(e=>`<span class="p p-${e}">${CL[e]}</span>`).join('');
-      if (s.x) html += `<span class="xt">${s.x}</span>`;
-      html += `</div>`;
-      if (s.w) html += `<span class="wk">${s.w}</span>`;
-      html += `</div>`;
-    });
+  let activeMonth = '';
+  S.forEach(entry => {
+    if (entry.monthKey !== activeMonth) {
+      if (activeMonth) html += `</div>`;
+      activeMonth = entry.monthKey;
+      html += `<div class="month" data-m="${entry.monthKey}"><div class="mh">${entry.monthLabel}</div>`;
+    }
+    if (nextUpDate && entry.dateIso === nextUpDate.dateIso && pastSessions.length > 0) {
+      html += `<div class="heute-div">Heute – ${today.toLocaleDateString('de-DE',{day:'2-digit',month:'long'})}</div>`;
+    }
+    const cls = ['row','clickable', entry.isPast ? 'past' : '', (!entry.isPast && nextUpDate && entry.dateIso === nextUpDate.dateIso) ? 'next-up' : ''].filter(Boolean).join(' ');
+    const vis = !entry.isPast || last3.has(entry.dateIso);
+    const payload = encodeURIComponent(JSON.stringify({e: entry.e, l: entry.l, x: entry.x || '', w: entry.w || ''}));
+    html += `<div class="${cls}" data-plan="${payload}" data-past="${entry.isPast ? 1 : 0}" data-in3="${last3.has(entry.dateIso) ? 1 : 0}" ${!vis ? 'style="display:none"' : ''} onclick="openSessionUnit(this.dataset.plan)">`;
+    html += `<span class="date">${entry.d}</span><span class="loc">${labelForLocationCode(entry.l)}</span>`;
+    html += `<div class="pills">`;
+    if (!entry.w) html += entry.e.map(color => `<span class="p p-${color}">${CL[color]}</span>`).join('');
+    if (entry.x) html += `<span class="xt">${entry.x}</span>`;
+    html += `</div>`;
+    if (entry.w) html += `<span class="wk">${entry.w}</span>`;
     html += `</div>`;
   });
-  const hidden = pastSessions.length - Math.min(3, pastSessions.length);
-  if (hidden > 0)
+  if (activeMonth) html += `</div>`;
+  const hidden = Math.max(0, pastSessions.length - Math.min(3, pastSessions.length));
+  if (hidden > 0) {
     html = `<div class="show-hint" id="showAllHint" onclick="setPlanView('alle',document.getElementById('vt-alle'))">+ ${hidden} ältere Einheiten anzeigen</div>` + html;
+  }
   document.getElementById('planContent').innerHTML = html;
 }
 
@@ -468,150 +687,38 @@ function setPlanView(v, btn) {
   if (hint) hint.style.display = v === 'alle' ? 'none' : '';
 }
 
-buildPlan();
-setPlanView('aktuell', document.getElementById('vt-aktuell'));
+async function initApp() {
+  clearError();
+  const [unitsResult, scheduleResult] = await Promise.allSettled([loadUnits(), loadSchedule()]);
+  const errors = [];
 
-const EU = [{n:'Pyramiden Training',o:'Kletterhalle',f:'gelb',k:'',s:'',d:'45+ min',
-   desc:'Startend bei 2/3 Grad unter Rotpunktniveau wird die Schwierigkeit immer weiter erhöht. Bei Sturz sofort ablassen; eine Schwierigkeit so lange wiederholen bis sie geschafft ist. Ziel: möglichst hohe Schwierigkeit erreichen. Aufwärmen kann integriert werden.',
-   x:'Chalkbeutel bleibt unten'},
-  {n:'Leichte Routen spulen',o:'Kletterhalle',f:'grün',k:'',s:'',d:'60+ min',
-   desc:'Jedes Kind klettert 2 Routen (2/3 Grad unter Onsightniveau) dreimal – insgesamt 6-mal. Beim Wechsel max. 1 Minute Pause. Im Vorstieg möglich; ggf. erstes Mal vorsteigen, dann zweimal nachsteigen ohne umzubinden.',
-   x:'Chalkbeutel bleibt unten · möglichst schnell klettern'},
-  {n:'Alle Routen an einem Seil',o:'Kletterhalle',f:'grün,gelb',k:'',s:'',d:'30+ min',
-   desc:'Alle Routen an einem Seil klettern (mind. 3 Routen). Bei Sturz direkt ablassen, keine Pause zwischen den Routen. Kinder überlegen selbst die beste Reihenfolge – taktischer Aspekt.',
-   x:''},
-  {n:'Boulderhalle traversieren',o:'Boulderhalle',f:'grün',k:'',s:'',d:'20+ min',
-   desc:'Nur bei relativ leerer Halle! Möglichst langen Abschnitt traversieren (z. B. um die Mittelinsel) ohne Bodenkontakt. Bei anderen Kletterern in der Wand warten. Kinder auf verschiedene Stellen aufteilen.',
-   x:'Füße leise setzen · Hände/Füße nur einmal setzen (Position nicht verbessern)'},
-  {n:'Tschechentraining',o:'Kletterhalle',f:'gelb',k:'',s:'',d:'',
-   desc:'Route auf Onsightniveau einmal klettern, dann schnell ablassen und sofort wieder einsteigen. So lange wiederholen bis das Kind stürzt. Route durchgehend ähnlich schwer. Mind. 3 Routen pro Person. Nur im Vorstieg.',
-   x:''},
-  {n:'4×4',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'',
-   desc:'4 definierte Boulder ohne Pause nacheinander klettern. Nach jedem Top direkt zum nächsten. Danach 2,5–4 min Pause (unvollständige Erholung). 4-mal wiederholen = 16 Boulder gesamt. Boulder schwierig, aber 4 hintereinander gerade noch machbar.',
-   x:''},
-  {n:'Projekte finden / ausbouldern',o:'Kletterhalle',f:'rot',k:'',s:'',d:'',
-   desc:'Kinder finden neue Projekte: Routen über dem aktuellen Rotpunktlevel, aber realistisch. Diese ausbouldern, so dass möglichst jeder Zug einmal geschafft wird. Pausen erlaubt. Falls Route zu schwer/leicht – Auswahl ändern.',
-   x:''},
-  {n:'Projektieren',o:'Kletterhalle',f:'gelb,rot',k:'',s:'',d:'',
-   desc:'Gute Versuche in Projekten machen (bereits ausgebouldert oder knapp über Flashniveau). Beim ersten Sturz ablassen – kein Ausbouldern, Fokus auf Versuchen. Mehrere Versuche mit genug Pause. Kinder über Fehler sprechen lassen.',
-   x:''},
-  {n:'Onsight Training',o:'Kletterhalle',f:'gelb',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'',
-   desc:'Neue Routen (Onsight- bis Rotpunktgrad) werden geonsightet. Kinder setzen sich vor dem Einstieg mit der Route auseinander: in Paaren Schlüsselstellen, Pausenstellen und Clipp-Positionen identifizieren, Beta überlegen. Nach dem Onsight besprechen.',
-   x:''},
-  {n:'Freies Klettern / Bouldern mit Technikaufgabe',o:'Kletterhalle / Boulderhalle',f:'lila',k:'',s:'',d:'',
-   desc:'Freies Klettern/Bouldern mit Zusatzaufgabe. Routen/Boulder nicht zu schwer – Fokus auf der Aufgabe. Aufgaben regelmäßig wechseln; kann auch ins verlängerte Aufwärmen integriert werden. Beispiele: Füße leise setzen, nicht nachgreifen/-treten, Fußwechsel, 3 sek innehalten vor jedem Griff, nur eingedreht klettern.',
-   x:''},
-  {n:'Flash the Set',o:'Boulderhalle',f:'gelb',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'',
-   desc:'Neues Boulderset wie Wettkampf behandeln – pro Boulder nur ein Versuch. Ziel: möglichst viele Boulder flashen. Gruppenarbeit ausdrücklich erlaubt: Kinder wechseln sich ab und lernen voneinander. Auf ausreichend Pause achten.',
-   x:''},
-  {n:'Schnell Klettern',o:'Kletterhalle',f:'gelb',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'',
-   desc:'Schwierige Routen (Onsightniveau oder knapp darunter) so schnell wie möglich klettern. Bei Sturz direkt wieder an die Wand. Optional: Kinder stoppen sich gegenseitig (nur bei gleich starken Paaren sinnvoll).',
-   x:''},
-  {n:'Schnell Bouldern',o:'Boulderhalle',f:'gelb',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'',
-   desc:'5 vorher bestimmte Boulder (ca. Flashniveau) so schnell wie möglich klettern. Optional gegenseitiges Stoppen – nur bei ähnlich starken Paaren sinnvoll.',
-   x:''},
-  {n:'Dauerklettern',o:'Boulderhalle',f:'grün',k:'',s:'',d:'',
-   desc:'Kinder bouldern 5–10 Minuten am Stück ohne Bodenkontakt. Immer in Bewegung bleiben – Pausenpositionen sind verboten. Nicht an einer Platte durchführen.',
-   x:''},
-  {n:'Von Insel zu Insel',o:'Kletterhalle',f:'grün,gelb',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'',
-   desc:'Jedes Kind wählt eine schwierige, machbare Route. 3–5 Atempositionen definieren. Zwischen diesen muss die Luft angehalten werden; an den Positionen das weitere Vorgehen planen. Danach Route wiederholen – ohne Luftanhalten, aber gleicher Rhythmus.',
-   x:''},
-  {n:'Routenlesen',o:'Boulderhalle',f:'lila',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'',
-   desc:'Boulder 2–3-mal klettern und Bewegungen bewusst einprägen. Zwischen Versuchen den Boulder immer im Geiste durchgehen. Dann den Boulder blind klettern. Ein anderes Kind kontrolliert. Mehrfach wiederholbar.',
-   x:''},
-  {n:'Krafttraining',o:'Kletterhalle / Boulderhalle',f:'rot',k:'',s:'',d:'20–30 min',
-   desc:'Zirkeltraining mit so vielen Stationen, dass immer 2 Kinder pro Station sind – gegenseitig anfeuern, kontrollieren und Hilfestellungen geben. Für Kinder: mehr Wiederholungen, 1–3 Sets à 8–15 WH. Inspiration: DAV-Trainingsskript S. 64–66 „Balance of Power" (ggf. leichter anpassen).',
-   x:''},
-  {n:'Boulder verbinden',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'',
-   desc:'4–5 mittelschwere Boulder ohne Bodenkontakt hintereinander klettern. Zum Abklettern zur nächsten Startposition alle Griffe erlaubt. Herausforderung: mehrere gleichwertige Sets finden, damit viele Kinder gleichzeitig an der Wand sein können.',
-   x:''},
-  {n:'Boulder Shootout',o:'Boulderhalle',f:'rot',k:'',s:'',d:'',
-   desc:'Gruppen ähnlich starker Kletterer (2–3 pro Gruppe). Jedes Kind wählt 2–3 Boulder – macht 6 pro Gruppe. Gruppe geht von Boulder zu Boulder; 2 Versuche pro Kind. Wer am weitesten kommt: 1 Punkt (bei Gleichstand je 0,5). Kinder wählen taktisch nach ihren Stärken.',
-   x:''},
-  {n:'Dyno Route',o:'Kletterhalle',f:'gelb',k:'dynamische-bewegungen',s:'Dynamische Bewegungen',d:'',
-   desc:'Im Toprope eine einfache Route klettern und möglichst viele dynamische Züge / Sprünge einbauen. Idealerweise nur mit Sprüngen vorwärtsbewegen. Route sollte möglichst viele Henkel haben. Erst ab 3 m Höhe springen.',
-   x:''},
-  {n:'Dynamisch vs. Statisch',o:'Boulderhalle',f:'gelb',k:'dynamische-bewegungen',s:'Dynamische Bewegungen',d:'',
-   desc:'3–4 mittelschwere Boulder erst so statisch wie möglich, dann so dynamisch wie möglich klettern. Gerne in Gruppen; Kinder diskutieren ob es noch statischer oder dynamischer geht. Ggf. vorab Begriffe klären.',
-   x:''},
-  {n:'Pausenpositionen finden',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'',
-   desc:'Wandteil vorgeben; alle Kinder suchen sich die beste Pausenposition. Dann Wettkampf: wer hält am längsten / schafft X Minuten? Keine zu einfachen Positionen – keine No-Hand-Rests, am besten überhängender Wandteil.',
-   x:''},
-  {n:'Boulderwettkampf',o:'Boulderhalle',f:'rot',k:'',s:'',d:'60–80 min',
-   desc:'Intensives Wettkampftraining das den Wettkampfgedanken und das Bewegungsrepertoire schult. Voraussetzung: 3–5 Kletterer auf ähnlichem Niveau.<br><br>Jeder definiert 10–15 min vom Boden aus 1–2 Boulder (4–8 Züge) ohne sie vorab zu probieren. Der Eröffner erklärt seinen Boulder und muss den ersten Versuch machen; alle anderen dürfen ebenfalls genau einen Versuch machen.<br><br><strong>Punkte bei geschafftem Boulder:</strong> Nur Eröffner: +5 | +1 Kletterer: 0/+5 | +2: -1/+4 | +3: -2/+3 | +4: -3/+2<br><strong>Punkte bei nicht geschafftem Boulder:</strong> Nur Eröffner: -5 | +1: -6/+10 | +2: -7/+9 | +3: -8/+8 | +4: -9/+9<br><br>Am besten schneidet ab, wer einen Boulder definiert, den man als Einziger klettern kann.',
-   x:'Eröffner muss Start- und Endgriff klar definieren'},
-  {n:'Sturztraining',o:'Kletterhalle',f:'lila',k:'',s:'',d:'30 min',
-   desc:'Ziel: Sturzangst abbauen und eine Routine aufbauen, damit Sturzangst gar nicht erst aufkommt.<br><br>Am einfachsten bei jeder Auf- oder Abwärmroute: vor dem Clippen des Umlenkers in den letzten Haken springen. Sicherheit zuerst – man darf nirgendwo anschlagen und der Sturz darf nicht am Boden enden.<br><br><strong>Steigerung in Schritten:</strong> Zunächst mit dem Bauchnabel am Haken springen → dann mit den Knien → dann mit den Füßen am Haken. Größere Stürze sind beim Sportklettern die Ausnahme, mehr ist meist nicht nötig.<br><br>2–3 Routen mit je 2–3 Stürzen.',
-   x:'Guter Sicherer ist unverzichtbar: Seil leicht durchhängen lassen, keinen Zug einziehen, Sturz normal abfangen'},
-  {n:'Film im Kopf',o:'Kletterhalle / Boulderhalle',f:'lila',k:'',s:'',d:'30–60 min',
-   desc:'Verbesserung der mentalen Vorstellung von Bewegungsabläufen.<br><br>Zum Erlernen zunächst kurze Passagen oder Boulder wählen. Sobald die Technik sitzt, auf komplette Routen anwenden.<br><br><strong>Ablauf:</strong> Route oder Boulder klettern und Züge einprägen. Danach an einem ruhigen Ort die einzelnen Züge laut aussprechen – nicht nur Griffpositionen, sondern auch Empfindungen: „Vorsicht, rutschiger Griff" oder „Klemmt super ab, durchatmen".<br><br>Den Bewegungsablauf im Geiste mehrfach durchklettern:<br>• In Worten<br>• Indem man sich selbst sieht<br>• Indem man spürt, wie man klettert<br><br>Die Route dann mental durchklettern und die Zeit messen. Je besser das Vorstellen, desto genauer trifft die gedachte die reale Kletterzeit.',
-   x:'Zur Kontrolle: gedachte und reale Zeit vergleichen; kann auch für Projektrouten genutzt werden'}];
+  if (unitsResult.status === 'fulfilled') {
+    const loadedUnits = unitsResult.value;
+    EU = loadedUnits.filter(unit => !unit.optional);
+    OPTIONAL_EU = loadedUnits.filter(unit => unit.optional);
+    renderUnits();
+  } else {
+    EU = [];
+    OPTIONAL_EU = [];
+    clearUnits();
+    errors.push(unitsResult.reason?.message || 'units.csv konnte nicht geladen werden.');
+  }
 
-const BC = {'rot':'b-rot','gelb':'b-gelb','grün':'b-grün','lila':'b-lila'};
-const BL = {'rot':'Rot','gelb':'Gelb','grün':'Grün','lila':'Blau'};
+  if (scheduleResult.status === 'fulfilled') {
+    setHeaderMeta(scheduleResult.value.meta);
+    S = scheduleResult.value.entries;
+    updateScheduleState();
+    buildPlan();
+    setPlanView('aktuell', document.getElementById('vt-aktuell'));
+  } else {
+    setHeaderMeta(HEADER_DEFAULTS);
+    S = [];
+    document.getElementById('planContent').innerHTML = '';
+    errors.push(scheduleResult.reason?.message || 'schedule.yaml konnte nicht geladen werden.');
+  }
 
-const OPTIONAL_EU = [
-  {n:'Last Minute.com',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'30–60 min',
-   desc:'Spezielle Wettkampfvorbereitung: in der Wettkampfsituation schnell auf ein neues Problem umschalten lernen. 4–8 Boulder von mittel bis etwas schwer definieren (onsight oder in 1–2 Versuchen kletterbar). Jeden Boulder genau markieren (Start, Ende, alle Griffe). Ablauf: 2 min lesen (Boulder nicht probieren) → 4 min klettern. Ohne Pause direkt weiter zum nächsten.',
-   x:'Interessant: mit der Schwierigkeit je nach Ermüdung spielen; nächsten Boulder angehen ohne an Erfolg/Misserfolg des vorherigen zu denken'},
-  {n:'1 Versuch je Minute',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'90 min',
-   desc:'Umfangbetontes Bouldertraining das eine wettkampfähnliche Belastung simuliert. 6 mittelschwere Boulder definieren. Jede Minute einen Versuch in einem Boulder machen (Zeit wird angesagt). Nach jedem Boulder 6 min Pause (Partner klettert). Dann weiter zum nächsten Boulder. Ziel: möglichst viele Griffe/Züge klettern.',
-   x:'Boulder mit geringem Verletzungspotenzial wählen; Anzahl der Boulder und Pausenzeiten kann variiert werden (4×4; 5×5)'},
-  {n:'Probewettkampf',o:'Kletterhalle',f:'gelb,rot',k:'',s:'',d:'90–120 min',
-   desc:'Mentale und physische Vorbereitung auf die Wettkampfsituation. 2 Routen nah am Rotpunktmaximum wählen (eine bereits geklettert, eine noch nicht, aber nah am Durchstieg). Feste Kletterzeiten festlegen (z. B. Aufwärmen 17:00, Route 1 18:30, Route 2 19:15). Timing strikt einhalten. Nach einem Sturz sofort ablassen – auch am Anfang der Route.',
-   x:'Es gibt nur je einen Versuch; alles ist von außen vorgegeben wie im Wettkampf – mit dieser Situation umgehen lernen'},
-  {n:'Wettkampf-Simulation Flash/Onsight',o:'Kletterhalle',f:'gelb,rot',k:'',s:'',d:'90–150 min',
-   desc:'Unmittelbare Vorbereitung auf einen Lead-Wettkampf. 2 Routen wählen: eine nah am Flashlimit (Quali), eine knapp über dem Onsight-Limit (Finale). Kletterzeiten festlegen wie im echten Wettkampf inkl. Besichtigungszeit (6 min). Nach Sturz sofort ablassen. Schwierigkeit bewusst unterschiedlich: Route 1 muss unbedingt geschafft werden; Route 2 ist kaum zu toppen, möglichst gute Höhe erzielen.',
-   x:'Aufwärmen und Besichtigung wie beim echten Wettkampf durchführen'},
-  {n:'Boulderjagd',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'30–60 min',
-   desc:'Kraftausdauer, taktisches Verhalten und Selbsteinschätzung trainieren. Voraussetzung: Boulderhalle mit klar definierten Schwierigkeitsgraden, mehrere ähnlich starke Kletterer. Zeit festlegen (30–45 min). Kletterer sammeln so viele Boulder wie möglich; Punkte nach Schwierigkeit: sehr leicht +2/–1, leicht +4/–2, mittel +8/–4, schwer +12/–6, sehr schwer +20/–10. Kein Boulder darf zweimal geklettert werden.',
-   x:'Kluges taktisches Verhalten nötig: Boulder geschickt auswählen, konzentriert angehen, mit Ermüdung umgehen'},
-  {n:'Der Joker',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'40–90 min',
-   desc:'Kraftausdauer verbessern und mit Fehlern umgehen. 3–5 schwierige Boulder (in 3–5 Versuchen kletterbar, 5–15 Züge) und einen leichten anstrengenden Boulder definieren. Gesamtzeit festlegen (15–45 min). Bei einem Sturz in einem schwierigen Boulder muss der leichte „Joker"-Boulder einmal geklettert werden. Nach jedem Versuch den Boulder wechseln. Ziel: am Ende möglichst viele schwierige Boulder geschafft haben.',
-   x:'Psychisch sehr nah an der Wettkampfbelastung; Schwierigkeit und Länge der Boulder gut auswählen'},
-  {n:'Abschirmen gegen konditionellen Druck',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'60–90 min',
-   desc:'Unter Ermüdung klettern und dabei die Technik beibehalten – schult auch die anaerobe Kraftausdauer. 6–10 Boulder (5–10 Züge), die gerade noch sicher geklettert werden können. Zwischen den Bouldern genau 2 min Pause. Auf korrekte Technik achten. Bei Sturz wird der Boulder von diesem Zug ab noch zu Ende geklettert. 2–3 Durchgänge mit je 20 min Pause.',
-   x:'Pausen exakt einhalten; es geht nicht ums Boulder-schaffen sondern ums Umgehen mit dem Druck durch zunehmende Ermüdung'},
-  {n:'Der Drittelboulder',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'60–90 min',
-   desc:'Kraftausdauer und Willenskraft beim Bouldern; dient auch der Wettkampfvorbereitung. 6–8 bekannte Boulder wählen (anstrengend bis schwer, aber noch einigermaßen sicher). Ablauf je Boulder: erstes Drittel klettern → nachchalken (30 sek) → zweites Drittel → nachchalken (30 sek) → ganzen Boulder klettern. Nach jedem Boulder 5–8 min Pause.',
-   x:'Simuliert Wettkampfbelastungen; schult psychische Härte beim wiederholten Klettern der gleichen Züge'},
-  {n:'Boulderrausch',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'30–60 min',
-   desc:'Kraftausdauer trainieren – Energiereserven erhöhen, mehr Züge ohne vollständige Pause klettern. Vor allem als Vorbereitung für Boulderwettkämpfe geeignet. 8–10 mittelschwere bekannte Boulder (5–8 Züge, sicher kletterbar) bilden 1 Satz. Zwischen den Bouldern unvollständige Pause (2–3 min). Nach dem Satz vollständige Pause (10–15 min). 1–2 weitere Sätze.',
-   x:'Alle Boulder sollten geschafft werden; „unvollständige Pause" = nicht 100% erholt wenn nächster Versuch beginnt'},
-  {n:'Ropegun',o:'Kletterhalle',f:'grün',k:'',s:'',d:'60–90 min',
-   desc:'Ausdauer beim Routenklettern verbessern – einfach weiterklettern auch wenn die Unterarme brennen. Variante 1: 3–5 Routen (1 Satz) je 1–1,5 Schwierigkeitsgrade unter Rotpunktgrenze, 2–3 min Pause zwischen Routen. Danach wiederholen. Variante 2: Route auf und ab klettern bis man herausfällt, vollständige Pause (~8–10 min), 3 Sätze je Person.',
-   x:'Möglichst viele Routen bereits kennen; bei knappem Durchstieg einen Schummelgriff/-tritt erlauben'},
-  {n:'Der Gladiator',o:'Boulderhalle',f:'gelb,rot',k:'',s:'',d:'35–90 min',
-   desc:'Maximalkraft verbessern und einem anderen Kletterrhythmus folgen. Duelle aus ähnlich starken Kletterern. Beide Kletterer mit einem 4–5 m langen Seil/Gummiband verbunden – zweiter muss sich dem Tempo des ersten anpassen und exakt die gleichen Griffe klettern. Duell endet wenn einer stürzt oder der Vordere das Seil deutlich spannt. 10–15 min Pause; 4–6 Duelle gesamt.',
-   x:'Vorsteiger kann Sturz des zweiten durch Tempo-Variation und Griffauswahl provozieren'},
-  {n:'Am Limit',o:'Kletterhalle',f:'gelb,rot',k:'',s:'',d:'120–180 min',
-   desc:'Anaerobe Kraftausdauer und das Klettern schwerer Züge mit Vorermüdung schulen. Bekannte Routen mit mindestens 20 Zügen suchen, die gerade noch durchstiegen werden können. Etwa 2 solcher Routen hintereinander durchsteigen, dann Partnerwechsel, 10–15 min Pause. 4–5 Serien.',
-   x:'Taktisches Wissen anwenden (Atmung, Bewegungsgefühl); Route bis zum Ende klettern – notfalls Zusatzgriff/-tritt nutzen'},
-  {n:'Von Crux zu Crux',o:'Boulderhalle',f:'gelb,rot',k:'',s:'',d:'90–160 min',
-   desc:'Anaerobe Kraftausdauer und schwere Züge mit Vorermüdung. An 2–3 weit auseinander liegenden Stellen je einen schweren Zug definieren (Griffarten und Zugarten variieren). Diese Schlüsselzüge mit leichteren Passagen zu einem zusammenhängenden Boulder (20–30 Züge) verbinden. 2–3 Versuche mit 5–10 min Pause. 3–4 solcher Boulder gesamt.',
-   x:'Schwierigkeit der Züge so wählen, dass sie nach Vorermüdung gerade noch machbar sind'},
-  {n:'60 Minuten gegen die Stoppuhr',o:'Boulderhalle',f:'gelb',k:'',s:'',d:'50–90 min',
-   desc:'Kraftausdauer verbessern und schnell Züge analysieren/umsetzen. 6 Boulder (4–8 Züge, mittelschwer: bei 4 von 5 Versuchen kletterbar) definieren. Einen Punkt 10–15 m entfernt markieren. Boulder klettern, zur Markierung laufen, weiter. Bei Sturz: zur Markierung und erneut versuchen. Ziel: alle 6 Boulder so schnell wie möglich. Zeit stoppen. 4–6 Durchgänge mit 6 min Pause.',
-   x:'Intensives Intervalltraining mit hohen technischen und kognitiven Anforderungen kombiniert'},
-  {n:'Selbstgespräch',o:'Kletterhalle',f:'lila',k:'',s:'',d:'60 min',
-   desc:'Den inneren Dialog kennenlernen und positiv umformulieren. Schritt 1: Eine leichte und eine schwere Route klettern; danach das Selbstgespräch während des Kletterns notieren (wie war es als es lief, bei Problemen, wenn man nicht mehr wusste wie weiter?). Schritt 2: Aus den positiven Selbstgesprächen eine kurze positive Formel entwickeln (mit „Ich" und positiven Formulierungen). Schritt 3: Formeln beim Klettern testen.',
-   x:'Die Gespräche müssen tatsächlich aufgeschrieben werden'},
-  {n:'Geträumt oder wahr?',o:'Kletterhalle',f:'lila',k:'',s:'',d:'ca. 20 min',
-   desc:'Vorstellungsvermögen schulen und vorgestellte Begehung mit der Realität vergleichen. Eine Route wählen, die unter Anstrengung noch sicher geschafft wird. Nach intensiver Besichtigung: von der Wand wegdrehen, Augen schließen, Route gedanklich durchsteigen – alle Bewegungen, Clips und Sinneseindrücke imitieren (Wie fühlen sich Griffe/Züge an? Was höre ich? Wie sehr strenge ich mich an?). Bei gedanklichem Einstieg „Los" sagen, bei oben „Fertig" – Zeit stoppen. Dann wirklich einsteigen und Zeit erneut stoppen. Ziel: Zeiten angleichen.',
-   x:'Auf Unterschiede zwischen echten und imaginären Sinneseindrücken achten; kann auch als Bouldern durchgeführt werden'},
-  {n:'Pacing',o:'Kletterhalle',f:'lila',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'30–60 min',
-   desc:'Persönliche Klettergeschwindigkeit überprüfen und optimieren. Route oder Boulder (15–20 Züge) suchen. Einmal in einem Zuge ohne Pause klettern. Einmal mit 2–4 Ruhepunkten klettern. Welche Methode war besser – oder ein Mix? Außerdem: Route zweimal klettern – einmal mit, einmal ohne Chalkbeutel; überprüfen wo Chalken tatsächlich etwas bringt.',
-   x:'Kombination mit „Film im Kopf" möglich; immer: angemessen chalken'},
-  {n:'Speedbouldern',o:'Boulderhalle',f:'lila',k:'',s:'',d:'30 min',
-   desc:'Klettergeschwindigkeit verbessern und Vorstellung von Bewegungsabläufen schulen. 2–3 Kletterer; gemeinsam Start- und Zielgriff definieren (restliche Griffe frei, 4–6 Züge). Den schnellsten Bewegungsablauf mehrfach im Geiste durchgehen. Dann wegdrehen: Partner stoppt gedachte Kletterzeit bis „Stopp" gesagt wird. Danach wirklich klettern (Zeit stoppen) und beide Zeiten vergleichen – sie sollen sich annähern. 2–3 Boulder je 5-mal klettern.',
-   x:'Variiere Routen regelmäßig um sich nicht zu sehr an den Bewegungsablauf zu gewöhnen'},
-  {n:'Viele TOPs',o:'Kletterhalle',f:'gelb,lila',k:'fluessiger-klettern',s:'Flüssiger Klettern',d:'60–90 min',
-   desc:'Kletterablauf mit typischen Wettkampfsituationen neu organisieren und Kraftausdauer verbessern. Route ca. 1/3–2/3 Grade unter der Onsightgrenze wählen. Route 3–4-mal mit je 10 min Pause klettern. Beim Klettern werden vom Sicherer zufällig Zusatzaufgaben zugerufen: TOP Abklettern (4 m absteigen), TOP Füße in die Luft (2 sek), TOP Ruhen (30 sek in aktueller Stellung), TOP Griffwechsel, TOP Einfrieren (10 sek). Abschließend die Route einmal ohne Zusatzaufgaben.',
-   x:'Die TOPs beinhalten Dinge die bei der Begehung einer Route auftreten können'},
-  {n:'Atmung beim Routenklettern',o:'Kletterhalle / Boulderhalle',f:'lila',k:'',s:'',d:'60–120 min',
-   desc:'Atmung der Klettersituation anpassen lernen. Beim Bouldern: Vor jedem Einsteigen bewusst auf „Ausatmen" oder „ruhig atmen" konzentrieren; unmittelbar nach dem Klettern Atmung prüfen. Beim Routenklettern: 2–4 Ruhepunkte festlegen, an denen man sich während des Kletterns auf die Atmung konzentriert; vor dem Einsteigen „Weiteratmen"; an Ruhepunkten bewusst bei jedem Atemzug die Schultern fallen lassen.',
-   x:'Kletterer soll wissen: es geht ums Atmen, nicht ums Ankommen oben'}
-];
+  if (errors.length) showError(errors.join('\n\n'));
+}
 
 function stripHtml(text) {
   return String(text || '')
@@ -648,7 +755,7 @@ function renderEUCard(eu, i, isOptional) {
   const optBadge = isOptional ? `<span class="opt-badge">Ergänzung</span>` : '';
   const searchName = escapeAttr(makeSearchText(eu.n));
   const searchDesc = escapeAttr(makeSearchText(eu.desc));
-  return `<div class="eu-card${optClass}" id="${prefix}-${i}" data-f="${eu.f}" data-k="${focusKeys}" data-o="${dataO}" data-n="${searchName}" data-desc="${searchDesc}">
+  return `<div class="eu-card${optClass}" id="${prefix}-${i}" data-f="${escapeAttr(eu.f)}" data-k="${escapeAttr(focusKeys)}" data-o="${escapeAttr(dataO)}" data-n="${searchName}" data-desc="${searchDesc}">
   <div class="eu-head">
     <div class="eu-head-top">
       <div class="eu-title">${eu.n}</div>
@@ -660,9 +767,6 @@ function renderEUCard(eu, i, isOptional) {
   ${foot}
 </div>`;
 }
-
-document.getElementById('euGrid').innerHTML = EU.map((eu, i) => renderEUCard(eu, i, false)).join('');
-document.getElementById('optGrid').innerHTML = OPTIONAL_EU.map((eu, i) => renderEUCard(eu, i, true)).join('');
 
 function fallbackCopyText(text) {
   const ta = document.createElement('textarea');
@@ -923,6 +1027,9 @@ function sw(id, btn) {
     applyStretchFilters();
   }
 }
+
+setHeaderMeta(HEADER_DEFAULTS);
+initApp();
 </script>
 </body>
 </html>
