@@ -494,6 +494,7 @@ const HEADER_DEFAULTS = {
   planOwner: 'Jana',
   dashboardOwner: 'Lukas',
   version: '1.6',
+  versionDate: '',
 };
 
 let scheduleMeta = {...HEADER_DEFAULTS};
@@ -617,7 +618,10 @@ function setHeaderMeta(meta) {
   const credits = document.getElementById('meta-credits');
   if (title) title.textContent = scheduleMeta.title;
   if (subtitle) subtitle.textContent = scheduleMeta.subtitle;
-  if (credits) credits.textContent = `Plan: ${scheduleMeta.planOwner} · Dashboard: ${scheduleMeta.dashboardOwner} · Version ${scheduleMeta.version}`;
+  const versionLabel = scheduleMeta.versionDate
+    ? `Version ${scheduleMeta.version} vom ${new Date(scheduleMeta.versionDate + 'T00:00:00').toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric'})}`
+    : `Version ${scheduleMeta.version}`;
+  if (credits) credits.textContent = `Plan: ${scheduleMeta.planOwner} · Dashboard: ${scheduleMeta.dashboardOwner} · ${versionLabel}`;
   document.title = `${scheduleMeta.title} – Trainer-Dashboard`;
 }
 
@@ -701,6 +705,7 @@ async function loadSchedule() {
     planOwner: requireString(meta.plan_owner, 'schedule.yaml meta.plan_owner'),
     dashboardOwner: requireString(meta.dashboard_owner, 'schedule.yaml meta.dashboard_owner'),
     version: requireString(meta.version, 'schedule.yaml meta.version'),
+    versionDate: String(meta.version_date ?? '').trim(),
   };
   if (!Array.isArray(parsed.entries) || !parsed.entries.length) {
     throw new Error('schedule.yaml benötigt mindestens einen Eintrag in entries.');
