@@ -134,6 +134,10 @@ body.dark .optional-divider span:first-child{color:#888}
 body.dark .optional-hint{color:#555}
 body.dark .eu-card.optional{background:#1e1e28;border-color:#2e2e3a}
 body.dark .opt-badge{background:#2a2a38;color:#666;border-color:#333}
+.sess-divider{display:flex;flex-direction:column;gap:4px;margin:0 0 1rem;padding-bottom:1.5rem;border-bottom:1.5px dashed #c8dff5}
+.sess-divider span:first-child{font-size:.93em;font-weight:500;color:#185FA5}
+body.dark .sess-divider{border-color:#1e3a5a}
+body.dark .sess-divider span:first-child{color:#4a9eff}
 
 /* ── Dark mode ── */
 body.dark{background:#1a1a1e;color:#e8e8e2}
@@ -310,6 +314,14 @@ body.dark .dm-btn:hover{background:#363644}
       <button class="fbtn fbtn-fokus-dynamik" onclick="filterFocus('dynamische-bewegungen',this)">Dynamische Bewegungen</button>
     </div>
   </div>
+  <div id="sessionOptimalSection" style="display:none">
+    <div class="sess-divider">
+      <span>Optimaler Vorschlag für diese Trainingseinheit</span>
+      <span class="optional-hint">Farbe und Schwerpunkt stimmen mit dem Training überein</span>
+    </div>
+    <div class="eu-grid" id="sessOptimalGrid"></div>
+  </div>
+
   <div class="eu-grid" id="euGrid"></div>
 
   <div id="optionalSection">
@@ -851,9 +863,10 @@ function escapeAttr(value) {
     .replace(/>/g, '&gt;');
 }
 
-function renderEUCard(eu, i, isOptional) {
-  const prefix = isOptional ? 'opt' : 'eu';
-  const idx = isOptional ? `o${i}` : i;
+function renderEUCard(eu, i, isOptional, extraPrefix) {
+  const prefix = extraPrefix ?? (isOptional ? 'opt' : 'eu');
+  const idx = extraPrefix ? `sess-${i}` : (isOptional ? `o${i}` : i);
+  const arrExpr = extraPrefix ? 'SESSION_OPTIMAL_EU' : (isOptional ? 'OPTIONAL_EU' : 'EU');
   const badges = eu.f.split(',').map(c => `<span class="badge ${BC[c.trim()]}">${BL[c.trim()]}</span>`).join('');
   const ort  = `<span class="badge b-ort">${eu.o}</span>`;
   const swb  = eu.s ? `<span class="badge b-sw">${eu.s}</span>` : '';
@@ -861,15 +874,15 @@ function renderEUCard(eu, i, isOptional) {
   const foot = eu.x ? `<div class="eu-foot"><div class="eu-foot-lbl">Zusatzaufgabe</div><div class="eu-foot-txt">${eu.x}</div></div>` : '';
   const dataO = eu.o.includes('/') ? 'both' : eu.o === 'Kletterhalle' ? 'KH' : 'BH';
   const focusKeys = inferFocusKeys(eu).join(',');
-  const optClass = isOptional ? ' optional' : '';
-  const optBadge = isOptional ? `<span class="opt-badge">Ergänzung</span>` : '';
+  const optClass = (!extraPrefix && isOptional) ? ' optional' : '';
+  const optBadge = (!extraPrefix && isOptional) ? `<span class="opt-badge">Ergänzung</span>` : '';
   const searchName = escapeAttr(makeSearchText(eu.n));
   const searchDesc = escapeAttr(makeSearchText(eu.desc));
   return `<div class="eu-card${optClass}" id="${prefix}-${i}" data-f="${escapeAttr(eu.f)}" data-k="${escapeAttr(focusKeys)}" data-o="${escapeAttr(dataO)}" data-n="${searchName}" data-desc="${searchDesc}">
   <div class="eu-head">
     <div class="eu-head-top">
       <div class="eu-title">${eu.n}</div>
-      ${optBadge}<button class="copy-btn" id="cp-${idx}" onclick="copyCardByRef(${isOptional?'OPTIONAL_EU':'EU'},${i},'cp-${idx}')">Kopieren</button>
+      ${optBadge}<button class="copy-btn" id="cp-${idx}" onclick="copyCardByRef(${arrExpr},${i},'cp-${idx}')">Kopieren</button>
     </div>
     <div class="eu-meta">${badges}${ort}${swb}${dur}</div>
   </div>
@@ -1035,19 +1048,52 @@ function copyCardByRef(arr, i, btnId) {
 }
 
 let activeColor = 'alle', activeOrt = 'alle', activeFocus = 'alle';
+let SESSION_OPTIMAL_EU = [];
 
 function applyFilters() {
   const q = (document.getElementById('euSearch').value || '').toLowerCase().trim();
-  document.querySelectorAll('.eu-card').forEach(c => {
+  document.querySelectorAll('#euGrid .eu-card, #optGrid .eu-card').forEach(c => {
     const colorOk  = activeColor === 'alle' || c.dataset.f.includes(activeColor);
     const ortOk    = activeOrt  === 'alle' || c.dataset.o === activeOrt || c.dataset.o === 'both';
     const focusOk  = activeFocus === 'alle' || c.dataset.k.split(',').includes(activeFocus);
     const searchOk = !q || c.dataset.n.includes(q) || c.dataset.desc.includes(q);
     c.classList.toggle('hidden', !colorOk || !ortOk || !focusOk || !searchOk);
   });
+  document.querySelectorAll('#sessOptimalGrid .eu-card').forEach(c => {
+    const searchOk = !q || c.dataset.n.includes(q) || c.dataset.desc.includes(q);
+    c.classList.toggle('hidden', !searchOk);
+  });
   const anyOptVisible = [...document.querySelectorAll('#optGrid .eu-card')].some(c => !c.classList.contains('hidden'));
   const sec = document.getElementById('optionalSection');
   if (sec) sec.style.display = anyOptVisible ? '' : 'none';
+  const sessSec = document.getElementById('sessionOptimalSection');
+  if (sessSec && sessSec.dataset.active === '1') {
+    const anyVisible = [...document.querySelectorAll('#sessOptimalGrid .eu-card')].some(c => !c.classList.contains('hidden'));
+    sessSec.style.display = anyVisible ? '' : 'none';
+  }
+}
+
+function renderOptimalSection(colors, focus, ort) {
+  const sec = document.getElementById('sessionOptimalSection');
+  if (!sec) return;
+  if (!focus || focus === 'alle') {
+    sec.style.display = 'none';
+    sec.dataset.active = '0';
+    SESSION_OPTIMAL_EU = [];
+    return;
+  }
+  const ortKey = ort === 'KH' ? 'Kletterhalle' : ort === 'BH' ? 'Boulderhalle' : null;
+  SESSION_OPTIMAL_EU = [...EU, ...OPTIONAL_EU].filter(eu => {
+    const euColors = eu.f.split(',').map(x => x.trim());
+    const colorOk = colors.some(c => euColors.includes(c));
+    const focusOk = eu.k.split(',').map(x => x.trim()).includes(focus);
+    const ortOk = !ortKey || eu.o === ortKey || eu.o.includes('/');
+    return colorOk && focusOk && ortOk;
+  });
+  const grid = document.getElementById('sessOptimalGrid');
+  if (grid) grid.innerHTML = SESSION_OPTIMAL_EU.map((eu, i) => renderEUCard(eu, i, false, 'sess')).join('');
+  sec.dataset.active = SESSION_OPTIMAL_EU.length > 0 ? '1' : '0';
+  sec.style.display = SESSION_OPTIMAL_EU.length > 0 ? '' : 'none';
 }
 
 function filterColor(f, btn) {
@@ -1087,6 +1133,9 @@ function resetUnitFilters() {
   if (cbtn) filterColor('alle', cbtn);
   if (obtn) filterOrt('alle', obtn);
   if (fbtn) filterFocus('alle', fbtn);
+  SESSION_OPTIMAL_EU = [];
+  const sessSec = document.getElementById('sessionOptimalSection');
+  if (sessSec) { sessSec.style.display = 'none'; sessSec.dataset.active = '0'; }
 }
 
 function openSessionUnit(payload) {
@@ -1105,6 +1154,8 @@ Für Wettkampf-Termine ist statt der Einheitenansicht eher sinnvoll:
   }
   const tabBtn = document.querySelector('.tabs .tab:nth-child(3)');
   if (tabBtn) sw('eu', tabBtn);
+  const colors = data.e || [];
+  const ort = data.l || 'alle';
   let focus = 'alle';
   const x = (data.x || '').toLowerCase();
   if (/dynamisch/.test(x)) focus = 'dynamische-bewegungen';
@@ -1114,14 +1165,27 @@ Für Wettkampf-Termine ist statt der Einheitenansicht eher sinnvoll:
     'fluessiger-klettern': '.fbtn-fokus-fluessig',
     'dynamische-bewegungen': '.fbtn-fokus-dynamik',
   };
-  const colorBtn = data.e && data.e[0] ? document.querySelector(`.fbtn-${data.e[0]}`) : document.querySelector('.fbtn-alle');
-  const ortBtn = data.l ? document.querySelector(`.fbtn-${data.l === 'KH' ? 'kh' : 'bh'}`) : document.querySelector('.fbtn-ort-alle');
+  const ortBtn = ort !== 'alle' ? document.querySelector(`.fbtn-${ort === 'KH' ? 'kh' : 'bh'}`) : document.querySelector('.fbtn-ort-alle');
   const focusBtn = document.querySelector(focusBtnMap[focus] || '.fbtn-fokus-alle');
-  if (colorBtn) filterColor(data.e && data.e[0] ? data.e[0] : 'alle', colorBtn);
-  if (ortBtn) filterOrt(data.l || 'alle', ortBtn);
+  if (focus !== 'alle') {
+    // Schwerpunkt vorhanden → alle Farben zeigen, Optimal-Sektion übernimmt die Farbempfehlung
+    const allBtn = document.querySelector('.fbtn-alle');
+    if (allBtn) filterColor('alle', allBtn);
+  } else {
+    const firstColor = colors[0];
+    const colorBtn = firstColor ? document.querySelector(`.fbtn-${firstColor}`) : document.querySelector('.fbtn-alle');
+    if (colorBtn) filterColor(firstColor || 'alle', colorBtn);
+  }
+  if (ortBtn) filterOrt(ort, ortBtn);
   if (focusBtn) filterFocus(focus, focusBtn);
-  const firstVisible = document.querySelector('.eu-card:not(.hidden)');
-  if (firstVisible) firstVisible.scrollIntoView({behavior:'smooth', block:'start'});
+  renderOptimalSection(colors, focus, ort);
+  const sessSec = document.getElementById('sessionOptimalSection');
+  if (sessSec && sessSec.dataset.active === '1') {
+    sessSec.scrollIntoView({behavior: 'smooth', block: 'start'});
+  } else {
+    const firstVisible = document.querySelector('#euGrid .eu-card:not(.hidden)');
+    if (firstVisible) firstVisible.scrollIntoView({behavior: 'smooth', block: 'start'});
+  }
 }
 
 function sw(id, btn) {
