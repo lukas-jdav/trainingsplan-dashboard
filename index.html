@@ -87,7 +87,8 @@ body.fs-sm{font-size:12px}
 .filter-sep{width:1px;height:20px;background:#ddd;align-self:center;flex-shrink:0}
 
 .eu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
-.eu-card{background:#fff;border:1px solid #e8e8e4;border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.eu-card{background:#fff;border:1px solid #e8e8e4;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.eu-card:hover{border-color:#cfcfc8;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .eu-card.hidden,.simple-card.hidden{display:none}
 .eu-head{padding:12px 14px 10px;border-bottom:1px solid #f0efea}
 .eu-head-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px}
@@ -127,6 +128,21 @@ body.fs-sm{font-size:12px}
 .simple-body{padding:12px 14px;font-size:.9em;color:#444;line-height:1.65}
 .link-list a{color:#185FA5;text-decoration:none}
 .link-list a:hover{text-decoration:underline}
+
+.back-btn{font-size:.9em;padding:7px 14px;border:1px solid #ddd;border-radius:20px;background:#fff;cursor:pointer;color:#555;transition:background .15s;display:inline-flex;align-items:center;gap:5px;margin-bottom:1rem}
+.back-btn:hover{background:#f0efea}
+.detail-card{background:#fff;border:1px solid #e8e8e4;border-radius:12px;overflow:hidden}
+.detail-head{padding:16px 18px 14px;border-bottom:1px solid #f0efea}
+.detail-title{font-size:1.2em;font-weight:600;color:#1a1a18;margin-bottom:10px}
+.detail-body{padding:16px 18px;display:flex;flex-direction:column;gap:18px}
+.detail-section-lbl{font-size:.72em;font-weight:500;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.detail-section-txt{font-size:.92em;color:#444;line-height:1.7}
+.detail-foot{padding:0 18px 16px}
+.session-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 14px;background:#f0f7ff;border:1px solid #c8dff5;border-radius:8px;margin-bottom:1.25rem;font-size:.88em;color:#185FA5}
+.exit-session-btn{font-size:.82em;padding:4px 12px;border:1px solid #185FA5;border-radius:16px;background:transparent;color:#185FA5;cursor:pointer;white-space:nowrap;transition:all .15s}
+.exit-session-btn:hover{background:#185FA5;color:#fff}
+.vorschlag-divider{display:flex;flex-direction:column;gap:4px;margin:2rem 0 1rem;padding-top:1.5rem;border-top:1.5px dashed #ddd}
+.vorschlag-divider span:first-child{font-size:.93em;font-weight:500;color:#666}
 
 .optional-divider{display:flex;flex-direction:column;gap:4px;margin:2rem 0 1rem;padding-top:1.5rem;border-top:1.5px dashed #ddd}
 .optional-divider span:first-child{font-size:.93em;font-weight:500;color:#666}
@@ -207,6 +223,19 @@ body.dark .wk{background:#2e1a1a;color:#f08080;border-color:#5a1e1e}
 body.dark .link-list a{color:#6aadff}
 body.dark .dm-btn{background:#2a2a32;border-color:#3a3a48;color:#aaa}
 body.dark .dm-btn:hover{background:#363644}
+body.dark .eu-card:hover{border-color:#4a4a58;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+body.dark .back-btn{background:#242430;border-color:#2e2e3a;color:#aaa}
+body.dark .back-btn:hover{background:#363644}
+body.dark .detail-card{background:#242430;border-color:#2e2e3a}
+body.dark .detail-head{border-color:#2e2e3a}
+body.dark .detail-title{color:#e8e8e2}
+body.dark .detail-section-lbl{color:#555}
+body.dark .detail-section-txt{color:#bbb}
+body.dark .session-bar{background:#1a2a3e;border-color:#1e3a5a;color:#6aadff}
+body.dark .exit-session-btn{border-color:#6aadff;color:#6aadff}
+body.dark .exit-session-btn:hover{background:#6aadff;color:#1a1a1e}
+body.dark .vorschlag-divider{border-color:#2e2e3a}
+body.dark .vorschlag-divider span:first-child{color:#888}
 
 @media print {
   body{background:#fff;font-size:11px}
@@ -323,48 +352,73 @@ body.dark .dm-btn:hover{background:#363644}
 </div>
 
 <div class="panel" id="p-eu">
-  <div class="filter-section">
-    <div class="search-wrap">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="euSearch" placeholder="Einheit suchen …" oninput="applyFilters()">
+
+  <!-- Listenansicht -->
+  <div id="euListView">
+    <div class="filter-section">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="euSearch" placeholder="Einheit suchen …" oninput="applyFilters()">
+      </div>
+      <div class="filter-bar">
+        <span class="fl">Intensität:</span>
+        <button class="fbtn fbtn-alle on" onclick="filterColor('alle',this)">Alle</button>
+        <button class="fbtn fbtn-rot"  onclick="filterColor('rot',this)">Rot</button>
+        <button class="fbtn fbtn-gelb" onclick="filterColor('gelb',this)">Gelb</button>
+        <button class="fbtn fbtn-grün" onclick="filterColor('grün',this)">Grün</button>
+        <button class="fbtn fbtn-lila" onclick="filterColor('lila',this)">Blau</button>
+        <span class="filter-sep"></span>
+        <span class="fl">Ort:</span>
+        <button class="fbtn fbtn-ort-alle on" onclick="filterOrt('alle',this)">Beide</button>
+        <button class="fbtn fbtn-kh" onclick="filterOrt('KH',this)">Kletterhalle</button>
+        <button class="fbtn fbtn-bh" onclick="filterOrt('BH',this)">Boulderhalle</button>
+      </div>
+      <div class="filter-row">
+        <span class="fl">Schwerpunkt:</span>
+        <button class="fbtn fbtn-fokus-alle on" onclick="filterFocus('alle',this)">Alle</button>
+        <button class="fbtn fbtn-fokus-fluessig" onclick="filterFocus('fluessiger-klettern',this)">Flüssiger klettern</button>
+        <button class="fbtn fbtn-fokus-dynamik" onclick="filterFocus('dynamische-bewegungen',this)">Dynamische Bewegungen</button>
+      </div>
     </div>
-    <div class="filter-bar">
-      <span class="fl">Intensität:</span>
-      <button class="fbtn fbtn-alle on" onclick="filterColor('alle',this)">Alle</button>
-      <button class="fbtn fbtn-rot"  onclick="filterColor('rot',this)">Rot</button>
-      <button class="fbtn fbtn-gelb" onclick="filterColor('gelb',this)">Gelb</button>
-      <button class="fbtn fbtn-grün" onclick="filterColor('grün',this)">Grün</button>
-      <button class="fbtn fbtn-lila" onclick="filterColor('lila',this)">Blau</button>
-      <span class="filter-sep"></span>
-      <span class="fl">Ort:</span>
-      <button class="fbtn fbtn-ort-alle on" onclick="filterOrt('alle',this)">Beide</button>
-      <button class="fbtn fbtn-kh" onclick="filterOrt('KH',this)">Kletterhalle</button>
-      <button class="fbtn fbtn-bh" onclick="filterOrt('BH',this)">Boulderhalle</button>
+
+    <div id="euSessionBar" class="session-bar" style="display:none">
+      <span id="euSessionBarText"></span>
+      <button class="exit-session-btn" onclick="exitSessionMode()">Alle Einheiten anzeigen</button>
     </div>
-    <div class="filter-row">
-      <span class="fl">Schwerpunkt:</span>
-      <button class="fbtn fbtn-fokus-alle on" onclick="filterFocus('alle',this)">Alle</button>
-      <button class="fbtn fbtn-fokus-fluessig" onclick="filterFocus('fluessiger-klettern',this)">Flüssiger klettern</button>
-      <button class="fbtn fbtn-fokus-dynamik" onclick="filterFocus('dynamische-bewegungen',this)">Dynamische Bewegungen</button>
+
+    <div id="sessionOptimalSection" style="display:none">
+      <div class="sess-divider">
+        <span>Optimale Übungen</span>
+        <span class="optional-hint">Farbe und Schwerpunkt passen</span>
+      </div>
+      <div class="eu-grid" id="sessOptimalGrid"></div>
     </div>
-  </div>
-  <div id="sessionOptimalSection" style="display:none">
-    <div class="sess-divider">
-      <span>Optimaler Vorschlag für diese Trainingseinheit</span>
-      <span class="optional-hint">Farbe und Schwerpunkt stimmen mit dem Training überein</span>
+
+    <div id="sessionVorschlagSection" style="display:none">
+      <div class="vorschlag-divider">
+        <span>Vorschlag Übungen</span>
+        <span class="optional-hint">Schwerpunkt passt, Farbe ist egal</span>
+      </div>
+      <div class="eu-grid" id="sessVorschlagGrid"></div>
     </div>
-    <div class="eu-grid" id="sessOptimalGrid"></div>
+
+    <div class="eu-grid" id="euGrid"></div>
+
+    <div id="optionalSection">
+      <div class="optional-divider">
+        <span>Ergänzende Einheiten aus dem DAV-Trainingsskript</span>
+        <span class="optional-hint">Zusätzliche Impulse für passende Situationen oder neue Schwerpunkte</span>
+      </div>
+      <div class="eu-grid" id="optGrid"></div>
+    </div>
   </div>
 
-  <div class="eu-grid" id="euGrid"></div>
-
-  <div id="optionalSection">
-    <div class="optional-divider">
-      <span>Ergänzende Einheiten aus dem DAV-Trainingsskript</span>
-      <span class="optional-hint">Zusätzliche Impulse für passende Situationen oder neue Schwerpunkte</span>
-    </div>
-    <div class="eu-grid" id="optGrid"></div>
+  <!-- Detailansicht -->
+  <div id="euDetailView" style="display:none">
+    <button class="back-btn" onclick="closeUnitDetail()">← Zurück zur Übersicht</button>
+    <div id="euDetailContent"></div>
   </div>
+
 </div>
 
 <div class="panel" id="p-methode">
@@ -694,6 +748,7 @@ async function loadUnits() {
               d: String(row.duration ?? '').trim(),
               desc: requireString(row.description, `${ctx} description`),
               x: String(row.extra ?? '').trim(),
+              b: String(row.benefit ?? '').trim(),
               optional: parseOptionalFlag(row.optional, `${ctx} optional`),
             };
           });
@@ -876,10 +931,10 @@ function escapeAttr(value) {
     .replace(/>/g, '&gt;');
 }
 
-function renderEUCard(eu, i, isOptional, extraPrefix) {
+function renderEUCard(eu, i, isOptional, extraPrefix, extraArrName) {
   const prefix = extraPrefix ?? (isOptional ? 'opt' : 'eu');
-  const idx = extraPrefix ? `sess-${i}` : (isOptional ? `o${i}` : i);
-  const arrExpr = extraPrefix ? 'SESSION_OPTIMAL_EU' : (isOptional ? 'OPTIONAL_EU' : 'EU');
+  const idx = extraPrefix ? `${extraPrefix}-${i}` : (isOptional ? `o${i}` : i);
+  const arrExpr = extraArrName ?? (extraPrefix ? 'SESSION_OPTIMAL_EU' : (isOptional ? 'OPTIONAL_EU' : 'EU'));
   const badges = eu.f.split(',').map(c => `<span class="badge ${BC[c.trim()]}">${BL[c.trim()]}</span>`).join('');
   const ort  = `<span class="badge b-ort">${eu.o}</span>`;
   const swb  = eu.s ? `<span class="badge b-sw">${eu.s}</span>` : '';
@@ -891,11 +946,11 @@ function renderEUCard(eu, i, isOptional, extraPrefix) {
   const optBadge = (!extraPrefix && isOptional) ? `<span class="opt-badge">Ergänzung</span>` : '';
   const searchName = escapeAttr(makeSearchText(eu.n));
   const searchDesc = escapeAttr(makeSearchText(eu.desc));
-  return `<div class="eu-card${optClass}" id="${prefix}-${i}" data-f="${escapeAttr(eu.f)}" data-k="${escapeAttr(focusKeys)}" data-o="${escapeAttr(dataO)}" data-n="${searchName}" data-desc="${searchDesc}">
+  return `<div class="eu-card${optClass}" id="${prefix}-${i}" data-f="${escapeAttr(eu.f)}" data-k="${escapeAttr(focusKeys)}" data-o="${escapeAttr(dataO)}" data-n="${searchName}" data-desc="${searchDesc}" onclick="openUnitDetailByEuId('${escapeAttr(eu.id)}')">
   <div class="eu-head">
     <div class="eu-head-top">
       <div class="eu-title">${eu.n}</div>
-      ${optBadge}<button class="copy-btn" id="cp-${idx}" onclick="copyCardByRef(${arrExpr},${i},'cp-${idx}')">Kopieren</button>
+      ${optBadge}<button class="copy-btn" id="cp-${idx}" onclick="event.stopPropagation();copyCardByRef(${arrExpr},${i},'cp-${idx}')">Kopieren</button>
     </div>
     <div class="eu-meta">${badges}${ort}${swb}${dur}</div>
   </div>
@@ -1062,6 +1117,68 @@ function copyCardByRef(arr, i, btnId) {
 
 let activeColor = 'alle', activeOrt = 'alle', activeFocus = 'alle';
 let SESSION_OPTIMAL_EU = [];
+let SESSION_VORSCHLAG_EU = [];
+
+function openUnitDetailByEuId(euId) {
+  const eu = [...EU, ...OPTIONAL_EU].find(u => u.id === euId);
+  if (eu) openUnitDetail(eu);
+}
+
+function openUnitDetail(eu) {
+  const listView = document.getElementById('euListView');
+  const detailView = document.getElementById('euDetailView');
+  if (listView) listView.style.display = 'none';
+  if (detailView) detailView.style.display = '';
+  const content = document.getElementById('euDetailContent');
+  if (!content) return;
+  const badges = eu.f.split(',').map(c => `<span class="badge ${BC[c.trim()]}">${BL[c.trim()]}</span>`).join('');
+  const ortBadge = `<span class="badge b-ort">${eu.o}</span>`;
+  const swb = eu.s ? `<span class="badge b-sw">${eu.s}</span>` : '';
+  const dur = eu.d ? `<span class="badge b-dur">${eu.d}</span>` : '';
+  const isOpt = OPTIONAL_EU.some(u => u.id === eu.id);
+  const detArr = isOpt ? 'OPTIONAL_EU' : 'EU';
+  const detIdx = isOpt ? OPTIONAL_EU.findIndex(u => u.id === eu.id) : EU.findIndex(u => u.id === eu.id);
+  const benefitSection = eu.b ? `<div><div class="detail-section-lbl">Ziel &amp; Nutzen</div><div class="detail-section-txt">${eu.b}</div></div>` : '';
+  const extraSection = eu.x ? `<div><div class="detail-section-lbl">Zusatzaufgabe</div><div class="detail-section-txt">${eu.x}</div></div>` : '';
+  content.innerHTML = `<div class="detail-card">
+  <div class="detail-head">
+    <div class="detail-title">${eu.n}</div>
+    <div class="eu-meta" style="margin-top:8px">${badges}${ortBadge}${swb}${dur}</div>
+  </div>
+  <div class="detail-body">
+    ${benefitSection}
+    <div><div class="detail-section-lbl">Beschreibung</div><div class="detail-section-txt">${eu.desc}</div></div>
+    ${extraSection}
+  </div>
+  <div class="detail-foot"><button class="copy-btn" id="cp-detail" onclick="copyCardByRef(${detArr},${detIdx},'cp-detail')">Kopieren</button></div>
+</div>`;
+}
+
+function closeUnitDetail() {
+  const listView = document.getElementById('euListView');
+  const detailView = document.getElementById('euDetailView');
+  if (listView) listView.style.display = '';
+  if (detailView) detailView.style.display = 'none';
+}
+
+function exitSessionMode() {
+  SESSION_OPTIMAL_EU = [];
+  SESSION_VORSCHLAG_EU = [];
+  ['sessionOptimalSection','sessionVorschlagSection'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.display = 'none'; el.dataset.active = '0'; }
+  });
+  const euGrid = document.getElementById('euGrid');
+  if (euGrid) euGrid.style.display = '';
+  const bar = document.getElementById('euSessionBar');
+  if (bar) bar.style.display = 'none';
+  const cbtn = document.querySelector('.fbtn-alle');
+  const obtn = document.querySelector('.fbtn-ort-alle');
+  const fbtn = document.querySelector('.fbtn-fokus-alle');
+  if (cbtn) filterColor('alle', cbtn);
+  if (obtn) filterOrt('alle', obtn);
+  if (fbtn) filterFocus('alle', fbtn);
+}
 
 function applyFilters() {
   const q = (document.getElementById('euSearch').value || '').toLowerCase().trim();
@@ -1072,41 +1189,72 @@ function applyFilters() {
     const searchOk = !q || c.dataset.n.includes(q) || c.dataset.desc.includes(q);
     c.classList.toggle('hidden', !colorOk || !ortOk || !focusOk || !searchOk);
   });
-  document.querySelectorAll('#sessOptimalGrid .eu-card').forEach(c => {
-    const searchOk = !q || c.dataset.n.includes(q) || c.dataset.desc.includes(q);
-    c.classList.toggle('hidden', !searchOk);
+  ['#sessOptimalGrid .eu-card', '#sessVorschlagGrid .eu-card'].forEach(sel => {
+    document.querySelectorAll(sel).forEach(c => {
+      c.classList.toggle('hidden', !(!q || c.dataset.n.includes(q) || c.dataset.desc.includes(q)));
+    });
   });
   const anyOptVisible = [...document.querySelectorAll('#optGrid .eu-card')].some(c => !c.classList.contains('hidden'));
   const sec = document.getElementById('optionalSection');
   if (sec) sec.style.display = anyOptVisible ? '' : 'none';
-  const sessSec = document.getElementById('sessionOptimalSection');
-  if (sessSec && sessSec.dataset.active === '1') {
-    const anyVisible = [...document.querySelectorAll('#sessOptimalGrid .eu-card')].some(c => !c.classList.contains('hidden'));
-    sessSec.style.display = anyVisible ? '' : 'none';
-  }
+  [
+    {id: 'sessionOptimalSection', grid: '#sessOptimalGrid .eu-card'},
+    {id: 'sessionVorschlagSection', grid: '#sessVorschlagGrid .eu-card'},
+  ].forEach(({id, grid}) => {
+    const el = document.getElementById(id);
+    if (el && el.dataset.active === '1') {
+      el.style.display = [...document.querySelectorAll(grid)].some(c => !c.classList.contains('hidden')) ? '' : 'none';
+    }
+  });
 }
 
 function renderOptimalSection(colors, focus, ort) {
-  const sec = document.getElementById('sessionOptimalSection');
-  if (!sec) return;
+  const optSec = document.getElementById('sessionOptimalSection');
+  const vorSec = document.getElementById('sessionVorschlagSection');
+  const euGrid = document.getElementById('euGrid');
+  const bar    = document.getElementById('euSessionBar');
+  const barTxt = document.getElementById('euSessionBarText');
+
   if (!focus || focus === 'alle') {
-    sec.style.display = 'none';
-    sec.dataset.active = '0';
+    if (optSec) { optSec.style.display = 'none'; optSec.dataset.active = '0'; }
+    if (vorSec) { vorSec.style.display = 'none'; vorSec.dataset.active = '0'; }
+    if (euGrid) euGrid.style.display = '';
+    if (bar) bar.style.display = 'none';
     SESSION_OPTIMAL_EU = [];
+    SESSION_VORSCHLAG_EU = [];
     return;
   }
+
   const ortKey = ort === 'KH' ? 'Kletterhalle' : ort === 'BH' ? 'Boulderhalle' : null;
-  SESSION_OPTIMAL_EU = [...EU, ...OPTIONAL_EU].filter(eu => {
+  const focusLabel = activeFocus === 'fluessiger-klettern' ? 'Flüssiger Klettern' : activeFocus === 'dynamische-bewegungen' ? 'Dynamische Bewegungen' : focus;
+  const colorLabels = colors.map(c => BL[c] ?? c).join(' / ');
+
+  SESSION_OPTIMAL_EU = EU.filter(eu => {
     const euColors = eu.f.split(',').map(x => x.trim());
     const colorOk = colors.some(c => euColors.includes(c));
     const focusOk = eu.k.split(',').map(x => x.trim()).includes(focus);
     const ortOk = !ortKey || eu.o === ortKey || eu.o.includes('/');
     return colorOk && focusOk && ortOk;
   });
-  const grid = document.getElementById('sessOptimalGrid');
-  if (grid) grid.innerHTML = SESSION_OPTIMAL_EU.map((eu, i) => renderEUCard(eu, i, false, 'sess')).join('');
-  sec.dataset.active = SESSION_OPTIMAL_EU.length > 0 ? '1' : '0';
-  sec.style.display = SESSION_OPTIMAL_EU.length > 0 ? '' : 'none';
+
+  const optimalIds = new Set(SESSION_OPTIMAL_EU.map(u => u.id));
+  SESSION_VORSCHLAG_EU = EU.filter(eu => {
+    const focusOk = eu.k.split(',').map(x => x.trim()).includes(focus);
+    const ortOk = !ortKey || eu.o === ortKey || eu.o.includes('/');
+    return focusOk && ortOk && !optimalIds.has(eu.id);
+  });
+
+  const optGrid = document.getElementById('sessOptimalGrid');
+  if (optGrid) optGrid.innerHTML = SESSION_OPTIMAL_EU.map((eu, i) => renderEUCard(eu, i, false, 'sess')).join('');
+  if (optSec) { optSec.dataset.active = SESSION_OPTIMAL_EU.length > 0 ? '1' : '0'; optSec.style.display = SESSION_OPTIMAL_EU.length > 0 ? '' : 'none'; }
+
+  const vorGrid = document.getElementById('sessVorschlagGrid');
+  if (vorGrid) vorGrid.innerHTML = SESSION_VORSCHLAG_EU.map((eu, i) => renderEUCard(eu, i, false, 'vor', 'SESSION_VORSCHLAG_EU')).join('');
+  if (vorSec) { vorSec.dataset.active = SESSION_VORSCHLAG_EU.length > 0 ? '1' : '0'; vorSec.style.display = SESSION_VORSCHLAG_EU.length > 0 ? '' : 'none'; }
+
+  if (euGrid) euGrid.style.display = 'none';
+  if (bar) bar.style.display = '';
+  if (barTxt) barTxt.textContent = `Schwerpunkt: ${focusLabel} · Farbe: ${colorLabels}`;
 }
 
 function filterColor(f, btn) {
@@ -1147,8 +1295,16 @@ function resetUnitFilters() {
   if (obtn) filterOrt('alle', obtn);
   if (fbtn) filterFocus('alle', fbtn);
   SESSION_OPTIMAL_EU = [];
-  const sessSec = document.getElementById('sessionOptimalSection');
-  if (sessSec) { sessSec.style.display = 'none'; sessSec.dataset.active = '0'; }
+  SESSION_VORSCHLAG_EU = [];
+  ['sessionOptimalSection', 'sessionVorschlagSection'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.display = 'none'; el.dataset.active = '0'; }
+  });
+  const euGrid = document.getElementById('euGrid');
+  if (euGrid) euGrid.style.display = '';
+  const bar = document.getElementById('euSessionBar');
+  if (bar) bar.style.display = 'none';
+  closeUnitDetail();
 }
 
 function openSessionUnit(payload) {
