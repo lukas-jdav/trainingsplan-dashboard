@@ -28,6 +28,10 @@ body.fs-sm{font-size:12px}
 .tab{font-size:.93em;padding:7px 16px;cursor:pointer;border:none;background:none;color:#777;border-bottom:2.5px solid transparent;margin-bottom:-1.5px}
 .tab.on{color:#1a1a18;font-weight:500;border-bottom:2.5px solid #1a1a18}
 .panel{display:none}.panel.on{display:block}
+.inner-tabs{display:flex;gap:2px;border-bottom:1.5px solid #ddd;margin-bottom:1.25rem}
+.inner-tab{font-size:.93em;padding:7px 16px;cursor:pointer;border:none;background:none;color:#777;border-bottom:2.5px solid transparent;margin-bottom:-1.5px}
+.inner-tab.on{color:#1a1a18;font-weight:500;border-bottom:2.5px solid #1a1a18}
+.inner-panel{display:none}.inner-panel.on{display:block}
 
 .plan-meta{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:1rem}
 .leg{display:flex;flex-wrap:wrap;gap:10px;font-size:.85em;color:#666}
@@ -145,6 +149,9 @@ body.dark .header-left .sub{color:#888}
 body.dark .tabs{border-color:#2e2e36}
 body.dark .tab{color:#888}
 body.dark .tab.on{color:#e8e8e2;border-bottom-color:#e8e8e2}
+body.dark .inner-tabs{border-color:#2e2e36}
+body.dark .inner-tab{color:#888}
+body.dark .inner-tab.on{color:#e8e8e2;border-bottom-color:#e8e8e2}
 body.dark .leg{color:#999}
 body.dark .vtog,.dark .fs-tog{background:#2a2a32}
 body.dark .vtbtn.on,.dark .fsbtn.on{background:#3a3a44;color:#e8e8e2;box-shadow:none}
@@ -204,7 +211,7 @@ body.dark .dm-btn:hover{background:#363644}
 @media print {
   body{background:#fff;font-size:11px}
   .header-right,.tabs,.vtog,.show-hint,.heute-div,.print-btn,.fs-tog{display:none!important}
-  #p-eu{display:none!important}
+  #p-eu,#p-vorbereitung{display:none!important}
   #p-plan{display:block!important}
   .wrap{padding:0;max-width:100%}
   .row.past{display:none!important}
@@ -237,9 +244,8 @@ body.dark .dm-btn:hover{background:#363644}
 
 <div class="tabs">
   <button class="tab on" onclick="sw('plan',this)">Trainingsplan</button>
-  <button class="tab" onclick="sw('wu',this)">Aufwärmen</button>
   <button class="tab" onclick="sw('eu',this)">Einheiten</button>
-  <button class="tab" onclick="sw('dehnen',this)">Dehnen</button>
+  <button class="tab" onclick="sw('vorbereitung',this)">Aufwärmen & Dehnen</button>
   <button class="tab" onclick="sw('methode',this)">Trainingsplan erklärt</button>
 </div>
 
@@ -261,31 +267,59 @@ body.dark .dm-btn:hover{background:#363644}
 </div>
 
 
-<div class="panel" id="p-wu">
-  <div class="info-box">
-    <strong>Aufwärmen</strong><br>
-    Reguläres Aufwärmen sollte ca. 15 Minuten in Anspruch nehmen. Wenn nicht anders angegeben, sollten die folgenden Vorschläge nicht mehr als 15 Minuten kosten.<br>
-    Bei allem Warmmachen an der Wand können Technikimpulse wie leise treten oder nicht nachgreifen integriert werden.
+<div class="panel" id="p-vorbereitung">
+  <div class="inner-tabs">
+    <button class="inner-tab on" onclick="swInner('wu',this)">Aufwärmen</button>
+    <button class="inner-tab" onclick="swInner('dehnen',this)">Dehnen</button>
   </div>
-  <div class="filter-section">
-    <div class="search-wrap">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="wuSearch" placeholder="Aufwärmen suchen …" oninput="applyWarmupFilters()">
+
+  <div class="inner-panel on" id="ip-wu">
+    <div class="info-box">
+      <strong>Aufwärmen</strong><br>
+      Reguläres Aufwärmen sollte ca. 15 Minuten in Anspruch nehmen. Wenn nicht anders angegeben, sollten die folgenden Vorschläge nicht mehr als 15 Minuten kosten.<br>
+      Bei allem Warmmachen an der Wand können Technikimpulse wie leise treten oder nicht nachgreifen integriert werden.
     </div>
-    <div class="filter-bar">
-      <span class="fl">Ort:</span>
-      <button class="fbtn fbtn-wu-ort-alle on" onclick="filterWarmupOrt('alle',this)">Alle</button>
-      <button class="fbtn fbtn-wu-kh" onclick="filterWarmupOrt('Kletterhalle',this)">Kletterhalle</button>
-      <button class="fbtn fbtn-wu-bh" onclick="filterWarmupOrt('Boulderhalle',this)">Boulderhalle</button>
-      <button class="fbtn fbtn-wu-egal" onclick="filterWarmupOrt('egal',this)">Ortsunabhängig</button>
-      <span class="filter-sep"></span>
-      <span class="fl">Dauer:</span>
-      <button class="fbtn fbtn-wu-dauer-alle on" onclick="filterWarmupDuration('alle',this)">Alle</button>
-      <button class="fbtn fbtn-wu-15" onclick="filterWarmupDuration('15 min',this)">15 min</button>
-      <button class="fbtn fbtn-wu-15-30" onclick="filterWarmupDuration('15 - 30 min',this)">15–30 min</button>
+    <div class="filter-section">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="wuSearch" placeholder="Aufwärmen suchen …" oninput="applyWarmupFilters()">
+      </div>
+      <div class="filter-bar">
+        <span class="fl">Ort:</span>
+        <button class="fbtn fbtn-wu-ort-alle on" onclick="filterWarmupOrt('alle',this)">Alle</button>
+        <button class="fbtn fbtn-wu-kh" onclick="filterWarmupOrt('Kletterhalle',this)">Kletterhalle</button>
+        <button class="fbtn fbtn-wu-bh" onclick="filterWarmupOrt('Boulderhalle',this)">Boulderhalle</button>
+        <button class="fbtn fbtn-wu-egal" onclick="filterWarmupOrt('egal',this)">Ortsunabhängig</button>
+        <span class="filter-sep"></span>
+        <span class="fl">Dauer:</span>
+        <button class="fbtn fbtn-wu-dauer-alle on" onclick="filterWarmupDuration('alle',this)">Alle</button>
+        <button class="fbtn fbtn-wu-15" onclick="filterWarmupDuration('15 min',this)">15 min</button>
+        <button class="fbtn fbtn-wu-15-30" onclick="filterWarmupDuration('15 - 30 min',this)">15–30 min</button>
+      </div>
     </div>
+    <div class="wu-grid" id="wuGrid"></div>
   </div>
-  <div class="wu-grid" id="wuGrid"></div>
+
+  <div class="inner-panel" id="ip-dehnen">
+    <div class="info-box">
+      <strong>Dehnen</strong><br>
+      Im Idealfall sollte nach jedem Training mindestens 15 Minuten gedehnt werden oder auf andere Weise an Flexibilität und Mobilität gearbeitet werden.
+    </div>
+    <div class="filter-section">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="stretchSearch" placeholder="Dehnen suchen …" oninput="applyStretchFilters()">
+      </div>
+      <div class="filter-bar">
+        <span class="fl">Art:</span>
+        <button class="fbtn fbtn-stretch-art-alle on" onclick="filterStretchType('alle',this)">Alle</button>
+        <button class="fbtn fbtn-stretch-gruppe" onclick="filterStretchType('gruppe',this)">Gruppe</button>
+        <button class="fbtn fbtn-stretch-routine" onclick="filterStretchType('routine',this)">Routine</button>
+        <button class="fbtn fbtn-stretch-video" onclick="filterStretchType('video',this)">Mit Link</button>
+      </div>
+    </div>
+    <div class="wu-grid" id="stretchGrid"></div>
+  </div>
 </div>
 
 <div class="panel" id="p-eu">
@@ -331,27 +365,6 @@ body.dark .dm-btn:hover{background:#363644}
     </div>
     <div class="eu-grid" id="optGrid"></div>
   </div>
-</div>
-
-<div class="panel" id="p-dehnen">
-  <div class="info-box">
-    <strong>Dehnen</strong><br>
-    Im Idealfall sollte nach jedem Training mindestens 15 Minuten gedehnt werden oder auf andere Weise an Flexibilität und Mobilität gearbeitet werden.
-  </div>
-  <div class="filter-section">
-    <div class="search-wrap">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="stretchSearch" placeholder="Dehnen suchen …" oninput="applyStretchFilters()">
-    </div>
-    <div class="filter-bar">
-      <span class="fl">Art:</span>
-      <button class="fbtn fbtn-stretch-art-alle on" onclick="filterStretchType('alle',this)">Alle</button>
-      <button class="fbtn fbtn-stretch-gruppe" onclick="filterStretchType('gruppe',this)">Gruppe</button>
-      <button class="fbtn fbtn-stretch-routine" onclick="filterStretchType('routine',this)">Routine</button>
-      <button class="fbtn fbtn-stretch-video" onclick="filterStretchType('video',this)">Mit Link</button>
-    </div>
-  </div>
-  <div class="wu-grid" id="stretchGrid"></div>
 </div>
 
 <div class="panel" id="p-methode">
@@ -1152,7 +1165,7 @@ Für Wettkampf-Termine ist statt der Einheitenansicht eher sinnvoll:
 • Material / Checkliste`);
     return;
   }
-  const tabBtn = document.querySelector('.tabs .tab:nth-child(3)');
+  const tabBtn = document.querySelector('.tabs .tab:nth-child(2)');
   if (tabBtn) sw('eu', tabBtn);
   const colors = data.e || [];
   const ort = data.l || 'alle';
@@ -1188,6 +1201,15 @@ Für Wettkampf-Termine ist statt der Einheitenansicht eher sinnvoll:
   }
 }
 
+function swInner(id, btn) {
+  document.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.inner-panel').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('ip-' + id).classList.add('on');
+  if (id === 'wu') applyWarmupFilters();
+  else if (id === 'dehnen') applyStretchFilters();
+}
+
 function sw(id, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
@@ -1195,10 +1217,10 @@ function sw(id, btn) {
   document.getElementById('p-' + id).classList.add('on');
   if (id === 'eu') {
     resetUnitFilters();
-  } else if (id === 'wu') {
-    applyWarmupFilters();
-  } else if (id === 'dehnen') {
-    applyStretchFilters();
+  } else if (id === 'vorbereitung') {
+    const activeInner = document.querySelector('#p-vorbereitung .inner-tab.on');
+    if (activeInner?.getAttribute('onclick')?.includes('wu')) applyWarmupFilters();
+    else applyStretchFilters();
   }
 }
 
