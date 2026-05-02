@@ -237,6 +237,38 @@ body.dark .exit-session-btn:hover{background:#6aadff;color:#1a1a1e}
 body.dark .vorschlag-divider{border-color:#2e2e3a}
 body.dark .vorschlag-divider span:first-child{color:#888}
 
+/* ── Settings modal ── */
+.settings-btn{font-size:14px;padding:7px 10px;border:none;border-radius:22px;background:#e8e8e4;cursor:pointer;color:#555;transition:all .15s;line-height:1}
+.settings-btn:hover{background:#ddddd8}
+.settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem}
+.settings-overlay.hidden{display:none}
+.settings-modal{background:#fff;border-radius:16px;width:100%;max-width:460px;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.settings-modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e8e8e4}
+.settings-modal-head span{font-size:1.05em;font-weight:600;color:#1a1a18}
+.settings-close{font-size:15px;padding:4px 8px;border:none;background:none;cursor:pointer;color:#888;border-radius:8px;transition:all .15s}
+.settings-close:hover{background:#f0efea;color:#1a1a18}
+.settings-modal-body{padding:20px;display:flex;flex-direction:column;gap:20px}
+.settings-section-title{font-size:.72em;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f0efea}
+.settings-row:last-child{border-bottom:none}
+.settings-row-lbl{font-size:.93em;color:#444}
+.version-list{display:flex;flex-direction:column;gap:10px}
+.version-entry{display:flex;gap:12px;align-items:flex-start}
+.version-badge{font-size:.78em;font-weight:600;padding:2px 8px;border-radius:8px;background:#f0efea;color:#555;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.version-desc{font-size:.88em;color:#555;line-height:1.5}
+body.dark .settings-btn{background:#2a2a32;color:#aaa}
+body.dark .settings-btn:hover{background:#363644}
+body.dark .settings-overlay{background:rgba(0,0,0,.55)}
+body.dark .settings-modal{background:#242430}
+body.dark .settings-modal-head{border-color:#2e2e3a}
+body.dark .settings-modal-head span{color:#e8e8e2}
+body.dark .settings-close{color:#666}
+body.dark .settings-close:hover{background:#363644;color:#e8e8e2}
+body.dark .settings-row{border-color:#2e2e3a}
+body.dark .settings-row-lbl{color:#bbb}
+body.dark .version-badge{background:#2a2a38;color:#aaa}
+body.dark .version-desc{color:#999}
+
 @media print {
   body{background:#fff;font-size:11px}
   .header-right,.tabs,.vtog,.show-hint,.heute-div,.print-btn,.fs-tog{display:none!important}
@@ -266,6 +298,7 @@ body.dark .vorschlag-divider span:first-child{color:#888}
       <button class="fsbtn" id="fs-lg" onclick="setFont('lg')">A+</button>
     </div>
     <button class="dm-btn" id="dm-btn" onclick="toggleDark()" title="Dark Mode umschalten">🌙</button>
+    <button class="settings-btn" onclick="openSettings()" title="Einstellungen">⚙</button>
   </div>
 </div>
 
@@ -517,12 +550,65 @@ body.dark .vorschlag-divider span:first-child{color:#888}
   </div>
 </div>
 
+<div class="settings-overlay hidden" id="settingsOverlay" onclick="settingsOverlayClick(event)">
+  <div class="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="settings-modal-head">
+      <span id="settings-title">Einstellungen</span>
+      <button class="settings-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="settings-modal-body">
+
+      <div>
+        <div class="settings-section-title">Allgemein</div>
+        <div class="settings-row">
+          <span class="settings-row-lbl">Schriftgröße</span>
+          <div class="fs-tog" style="margin:0">
+            <button class="fsbtn" id="sfs-sm" onclick="setFont('sm')">A−</button>
+            <button class="fsbtn on" id="sfs-md" onclick="setFont('md')">A</button>
+            <button class="fsbtn" id="sfs-lg" onclick="setFont('lg')">A+</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-row-lbl">Darstellung</span>
+          <button class="dm-btn" id="sdm-btn" onclick="toggleDark()">🌙</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="settings-section-title">Version &amp; Verlauf</div>
+        <div class="version-list">
+          <div class="version-entry">
+            <span class="version-badge">v1.6</span>
+            <span class="version-desc">Einheiten-Detailansicht beim Klick · Schwerpunkt-Filter zeigt optimale und vorgeschlagene Einheiten getrennt</span>
+          </div>
+          <div class="version-entry">
+            <span class="version-badge">v1.5</span>
+            <span class="version-desc">Aufwärmen &amp; Dehnen zu einem Reiter zusammengeführt</span>
+          </div>
+          <div class="version-entry">
+            <span class="version-badge">v1.4</span>
+            <span class="version-desc">Klick auf Trainingstag filtert automatisch passende Einheiten nach Schwerpunkt und Ort</span>
+          </div>
+          <div class="version-entry">
+            <span class="version-badge">v1.3</span>
+            <span class="version-desc">Plan und Einheiten in externe Dateien ausgelagert (schedule.yaml, units.csv)</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script>
 function toggleDark() {
   const isDark = document.body.classList.toggle('dark');
-  document.getElementById('dm-btn').textContent = isDark ? '☀️' : '🌙';
+  const icon = isDark ? '☀️' : '🌙';
+  document.getElementById('dm-btn').textContent = icon;
+  const sdm = document.getElementById('sdm-btn');
+  if (sdm) sdm.textContent = icon;
   localStorage.setItem('dm', isDark ? '1' : '0');
 }
 
@@ -534,6 +620,8 @@ function toggleDark() {
     document.addEventListener('DOMContentLoaded', () => {
       const btn = document.getElementById('dm-btn');
       if (btn) btn.textContent = '☀️';
+      const sdm = document.getElementById('sdm-btn');
+      if (sdm) sdm.textContent = '☀️';
     });
   }
 })();
@@ -541,7 +629,34 @@ function toggleDark() {
 function setFont(sz) {
   document.body.classList.remove('fs-sm','fs-lg');
   if (sz !== 'md') document.body.classList.add('fs-' + sz);
-  ['sm','md','lg'].forEach(s => document.getElementById('fs-'+s).classList.toggle('on', s === sz));
+  ['sm','md','lg'].forEach(s => {
+    document.getElementById('fs-'+s).classList.toggle('on', s === sz);
+    const sb = document.getElementById('sfs-'+s);
+    if (sb) sb.classList.toggle('on', s === sz);
+  });
+}
+
+function openSettings() {
+  const overlay = document.getElementById('settingsOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('hidden');
+  const isDark = document.body.classList.contains('dark');
+  const sdm = document.getElementById('sdm-btn');
+  if (sdm) sdm.textContent = isDark ? '☀️' : '🌙';
+  const sz = document.body.classList.contains('fs-sm') ? 'sm' : document.body.classList.contains('fs-lg') ? 'lg' : 'md';
+  ['sm','md','lg'].forEach(s => {
+    const b = document.getElementById('sfs-'+s);
+    if (b) b.classList.toggle('on', s === sz);
+  });
+}
+
+function closeSettings() {
+  const overlay = document.getElementById('settingsOverlay');
+  if (overlay) overlay.classList.add('hidden');
+}
+
+function settingsOverlayClick(e) {
+  if (e.target === document.getElementById('settingsOverlay')) closeSettings();
 }
 
 const WARMUPS = [
